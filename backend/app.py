@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, session
 from flask_restful import Resource, Api, reqparse
 import pymysql
 from flask_cors import CORS
@@ -47,6 +47,7 @@ class Account(Resource):
             else:
                 # 유저가 있다면 비밀번호 체크
                 if args['password'] == result[1]:
+                    session['logged_in'] = True
                     return jsonify(status="success", result="로그인 성공!!")
                 else:
                     return jsonify(status="success", result="비밀번호를 확인해주세요")

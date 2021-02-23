@@ -16,6 +16,7 @@ function Login() {
           axios.post(url + 'account', data)
           .then(response=>{
             console.log(response);
+            // window.sessionStorage.setItem('token', token);
           });
 
         }
