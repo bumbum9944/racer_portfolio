@@ -1,10 +1,16 @@
 from flask import Flask, jsonify
 from flask_restful import Resource, Api, reqparse
 import pymysql
+from flask_cors import CORS
 
 
 app = Flask(__name__)
 api = Api(app)
+
+#cors 설정
+cors = CORS(app, resources={
+  r"*": {"origin": "*"},
+})
 
 # db 연결
 db = pymysql.connect(
