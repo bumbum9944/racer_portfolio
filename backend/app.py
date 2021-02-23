@@ -2,6 +2,8 @@ from flask import Flask, jsonify, session
 from flask_restful import Resource, Api, reqparse
 import pymysql
 from flask_cors import CORS
+import bcrypt
+import jwt
 
 
 app = Flask(__name__)
@@ -56,7 +58,12 @@ class Account(Resource):
             INSERT INTO user (name, email, password) 
             VALUES (%s, %s, %s);
             """
-            cursor.execute(sql, (args['name'], args['email'], args['password'], ))
+            # 비밀번호 암호화
+            password = args['password']
+            encrypted_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+            encrypted_password = encrypted_password.decode("utf-8")
+
+            cursor.execute(sql, (args['name'], args['email'], encrypted_password, ))
             db.commit()
 
             sql = "SELECT email FROM user WHERE email=%s;"
