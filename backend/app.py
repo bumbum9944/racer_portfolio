@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, session
+from flask import Flask, jsonify
 from flask_restful import Resource, Api, reqparse
 import pymysql
 from flask_cors import CORS
@@ -10,9 +10,7 @@ app = Flask(__name__)
 api = Api(app)
 
 #cors 설정
-cors = CORS(app, resources={
-  r"*": {"origin": "*"},
-})
+cors = CORS(app)
 
 # db 연결
 db = pymysql.connect(
@@ -36,21 +34,34 @@ test_db = dict()
 class Account(Resource):
     def post(self):
         args = parser.parse_args()
+
         # 이름이 없으면 로그인
         if args['name'] == None:
+
             sql = "SELECT email, password FROM user WHERE email=%s;"
 
             cursor.execute(sql, (args['email'], ))
             result = cursor.fetchone()
+
 
             # 유저가 존재하지 않을 경우
             if result == None:
                 return jsonify(status="success", result="존재하지 않는 유저입니다.")
             else:
                 # 유저가 있다면 비밀번호 체크
-                if args['password'] == result[1]:
-                    session['logged_in'] = True
-                    return jsonify(status="success", result="로그인 성공!!")
+                if bcrypt.checkpw(args['password'].encode('utf-8'), result[1].encode('utf-8')):
+                    json = {
+                        "email": args['email'],
+                        "password": args['password']
+                    }
+
+                    encoded = jwt.encode(json, "secret", algorithm="HS256")
+
+                    result = {
+                        'msg': '로그인 성공',
+                        'token': encoded
+                    }
+                    return jsonify(status="success", result=result)
                 else:
                     return jsonify(status="success", result="비밀번호를 확인해주세요")
         else:
@@ -61,7 +72,6 @@ class Account(Resource):
             # 비밀번호 암호화
             password = args['password']
             encrypted_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
-            encrypted_password = encrypted_password.decode("utf-8")
 
             cursor.execute(sql, (args['name'], args['email'], encrypted_password, ))
             db.commit()
