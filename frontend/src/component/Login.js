@@ -21,12 +21,16 @@ function Login() {
         }
       }>
         <div>
-          <label for="email">email</label>
-          <input type="text" name="email" placeholder="abc@email.com" />
+          <label>
+            email:
+            <input type="text" name="email" placeholder="abc@email.com" />
+          </label>
         </div>
         <div>
-          <label for="password">password</label>
-          <input type="text" name="password" placeholder="123@?#abc" />
+          <label>
+            password:
+            <input type="text" name="password" placeholder="123@?#abc" />
+          </label>
         </div>
         <div>
           <button type="submit">로그인</button>
