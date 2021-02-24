@@ -3,11 +3,16 @@ from flask_restful import Resource, Api, reqparse
 import pymysql
 from flask_cors import CORS
 import bcrypt
-import jwt
+from flask_jwt_extended import (JWTManager, jwt_required, create_access_token, get_jwt_identity)
+from config import Config
 
 
 app = Flask(__name__)
 api = Api(app)
+
+#jwt 설정
+app.config['JWT_SECRET_KEY'] = Config.JWT_SECRET_KEY
+jwt = JWTManager(app)  
 
 #cors 설정
 cors = CORS(app)
@@ -50,16 +55,12 @@ class Account(Resource):
             else:
                 # 유저가 있다면 비밀번호 체크
                 if bcrypt.checkpw(args['password'].encode('utf-8'), result[1].encode('utf-8')):
-                    json = {
-                        "email": args['email'],
-                        "password": args['password']
-                    }
-
-                    encoded = jwt.encode(json, "secret", algorithm="HS256")
+                
+                    access_token = create_access_token(identity=args['email'])
 
                     result = {
                         'msg': '로그인 성공',
-                        'token': encoded
+                        'token': access_token
                     }
                     return jsonify(status="success", result=result)
                 else:
