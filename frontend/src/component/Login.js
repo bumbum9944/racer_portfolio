@@ -2,7 +2,7 @@ import React from 'react';
 import url from '../url/http';
 import axios from 'axios';
 
-function Login() {
+function Login(props) {
   return (
     <>
       <form onSubmit={
@@ -15,8 +15,8 @@ function Login() {
 
           axios.post(url + 'account', data)
           .then(response=>{
-            window.sessionStorage.setItem('token', response.data.result.token);
-            console.log(window.sessionStorage.getItem("token"))
+            sessionStorage.setItem('token', response.data.result.token);
+            props.history.push('/');
           });
 
         }
