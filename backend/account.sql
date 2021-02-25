@@ -31,6 +31,7 @@ create table if not exists project(
     id int not null AUTO_INCREMENT,
     name varchar(100) not null,
     description text default null,
+    period date not null,
     user int not null, 
     primary key (id),
     foreign key (user)

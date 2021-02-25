@@ -34,7 +34,6 @@ parser.add_argument("email")
 parser.add_argument("password")
 parser.add_argument("name")
 
-test_db = dict()
 
 class Account(Resource):
     def post(self):
@@ -83,8 +82,103 @@ class Account(Resource):
             
             return jsonify(status = "success", result = result) 
 
-# api 라우팅 등록
 api.add_resource(Account, '/account')
+
+parser.add_argument("degree")
+parser.add_argument("schoolName")
+parser.add_argument("major")
+parser.add_argument("Authorization")
+
+
+class Post(Resource):
+
+    @jwt_required()
+    def get(self, category, user_id=None):
+        args = parser.parse_args()
+
+        # user_id가 없으면 나의 정보 요청으로 인식
+        if user_id == None:
+            current_user = get_jwt_identity()
+
+            cursor.execute('SELECT id FROM user WHERE email=%s;', (current_user, ))
+            current_user_id = cursor.fetchone()[0]
+            print('!!!!!!!!!!!!!!!!')
+            print(current_user_id)
+            # 각 카테고리 별로 기능 구현
+            if category == 'education':
+                sql = '''
+                SELECT * FROM education WHERE user=%s;
+                '''
+                # cursor.execute(sql, (current_user_id, ))
+                cursor.execute(sql, (current_user_id, ))
+            elif category == 'award':
+                sql = '''
+                SELECT * FROM award WHERE user=%s;
+                '''
+                cursor.execute(sql, (current_user_id, ))
+            elif category == 'project':
+                sql = '''
+                SELECT * FROM project WHERE user=%s;
+                '''
+                cursor.execute(sql, (current_user_id, ))
+            elif category == 'license':
+                sql = '''
+                SELECT * FROM license WHERE user=%s;
+                '''
+                cursor.execute(sql, (current_user_id, ))
+            
+            result = cursor.fetchall()
+
+        else: # 다른 유저 정보 요청
+            pass
+
+        return jsonify(status = "success", result = result)
+
+
+    @jwt_required()
+    def post(self, category):
+        args = parser.parse_args()
+        current_user = get_jwt_identity()
+
+        cursor.execute('SELECT id FROM user WHERE email=%s;', (current_user, ))
+        current_user_id = cursor.fetchone()[0]
+
+        # 각 카테고리 별로 기능 구현
+        if category == 'education':
+            sql = '''
+            INSERT INTO education (degree, schoolName, major, user)
+            VALUES (%s, %s, %s, %s);
+            '''
+            cursor.execute(sql, (args['degree'], args['schoolName'], args['major'], current_user_id, ))
+        elif category == 'award':
+            sql = '''
+            INSERT INTO award (name, description, user)
+            VALUES (%s, %s, %s);
+            '''
+            cursor.execute(sql, (args['name'], args['description'], current_user_id, ))
+        elif category == 'project':
+            sql = '''
+            INSERT INTO project (name, description, period, user)
+            VALUES (%s, %s, %s, %s);
+            '''
+            cursor.execute(sql, (args['name'], args['description'], args['period'], current_user_id, ))
+        elif category == 'license':
+            sql = '''
+            INSERT INTO license (name, issuer, user)
+            VALUES (%s, %s, %s, %s);
+            '''
+            cursor.execute(sql, (args['name'], args['issuer'], current_user_id, ))
+        
+        
+        db.commit()
+        cursor.execute('SELECT * FROM education WHERE user=%s;', (current_user_id, ))
+        res = cursor.fetchall()
+        return jsonify(status = "success", msg = '저장 성공', res=res)
+
+
+
+# api 라우팅 등록
+api.add_resource(Post, '/post/<category>', '/post/<user_id>/<category>')
 
 if __name__ == '__main__':
     app.run(debug=True)
