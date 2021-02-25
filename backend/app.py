@@ -102,8 +102,6 @@ class Post(Resource):
 
             cursor.execute('SELECT id FROM user WHERE email=%s;', (current_user, ))
             current_user_id = cursor.fetchone()[0]
-            print('!!!!!!!!!!!!!!!!')
-            print(current_user_id)
             # 각 카테고리 별로 기능 구현
             if category == 'education':
                 sql = '''

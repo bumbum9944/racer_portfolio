@@ -62,22 +62,10 @@ function Education() {
         },
       })
       .then((res)=>{
-        console.log(res);
+        setEduData(res.data.res)
       }).catch((err)=>{
         console.log(err);
       });
-
-      // axios.get(url + 'post/education', {
-      //   headers: {
-      //     Authorization: `Bearer ${accessToken}`
-      //   }
-      // })
-      // .then(response=>{
-      //   console.log(response.data.result);
-      //   setEduData(response.data.result);
-      // }).catch((e)=>{
-      //   console.log(e)
-      // });
       
       setMode('READ');
       setSchoolName('');
