@@ -5,30 +5,32 @@ import url from '../url/http';
 import EducationInner from './EducationInner';
 import EducationForm from './EducationForm';
 
-function Education() {
+function Education(props) {
 
   var [targetIndex, setTargetIndex] = useState('');
   var [mode, setMode] = useState('READ');
   var [eduData, setEduData] = useState([]);
-
-  var accessToken = sessionStorage.getItem('token');
   
-  const header = {
-    headers: {
-      Authorization: `Bearer ${accessToken}`
-    }
-  }
-  
-
   useEffect(()=>{
-    axios.get(url + 'post/education', header)
+    console.log(props.accessToken)
+    axios.get(url + 'post/education', {
+      headers: {
+        Authorization: `Bearer ${props.accessToken}`
+      }
+    })
     .then(response=>{
       setEduData(response.data.result);
       
     }).catch((e)=>{
       console.log(e)
     })
-  }, []);
+  }, [props.accessToken]);
+
+  const header = {
+    headers: {
+      Authorization: `Bearer ${props.accessToken}`
+    }
+  }
 
   var createForm = '';
   
@@ -39,12 +41,14 @@ function Education() {
       setEduData(data);
     }} changeMode={(data)=>{
       setMode(data);
-    }} index={index} post_id={data[0]} schoolName={data[2]}
-    major={data[3]} degree={data[1]} eduData={eduData} />
+    }} index={index} postId={data[0]} schoolName={data[2]}
+    major={data[3]} degree={data[1]} header={header} />
   )
 
   if(mode === 'CREATE') {
-    createForm = <EducationForm formMode="제출" schoolName="" major="" checkedItem="" changeEduData={function(data) {
+    createForm = <EducationForm formMode="제출" schoolName="" major="" checkedItem=""
+    header={header}
+    changeEduData={function(data) {
       setEduData(data)
     }} changeMode={(data)=>{
       setMode(data);
@@ -55,6 +59,7 @@ function Education() {
     schoolName={eduData[targetIndex][2]} 
     major={eduData[targetIndex][3]} 
     checkedItem={eduData[targetIndex][1]} 
+    header={header}
     changeEduData={function(data) {
       setEduData(data)
     }} changeMode={(data)=>{
@@ -64,7 +69,7 @@ function Education() {
   
   return (
     <div>
-      <Card style={{ width: '30rem' }}>
+      <Card style={{ width: '50rem' }}>
         <Card.Body>
           <Card.Title>학력</Card.Title>
           {innerTag}

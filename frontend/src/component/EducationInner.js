@@ -5,16 +5,8 @@ import url from '../url/http';
 
 function EducationInner(props) {
 
-  var accessToken = sessionStorage.getItem('token');
-
-  const header = {
-    headers: {
-      Authorization: `Bearer ${accessToken}`
-    }
-  }
-
     return(
-      <Card key={props.index}>
+      <Card key={props.index} className="mb-2" >
         <Card.Body className="d-flex">
           <div style={{width: '100%'}}>
             <Card.Text>
@@ -30,10 +22,10 @@ function EducationInner(props) {
           <div className="d-flex justify-content-end align-items-center" style={{width: '100%'}}>
             <Button variant="primary" onClick={()=>{
               props.changeTargetIndex(props.index);
-              props.changeMode('EDIT', props.index);
+              props.changeMode('EDIT');
             }}>수정</Button>
             <Button variant="danger" onClick={()=>{
-              axios.delete(url + `post/education/${props.post_id}`, header)
+              axios.delete(url + `post/education/${props.postId}`, props.header)
               .then(res=>{
                 props.changeEduData(res.data.res);
               }).catch(err=>{

@@ -1,13 +1,13 @@
-import { React } from 'react';
+import { React} from 'react';
 import Portfolio from './Portfolio'
 
 function Home(props) {
 
   return (
-    <>
+    <div className="">
       <h1>home</h1>
-      <Portfolio />
-    </>
+      <Portfolio accessToken={props.accessToken} />
+    </div>
   );
 }
 

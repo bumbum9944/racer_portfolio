@@ -88,6 +88,12 @@ parser.add_argument("degree")
 parser.add_argument("schoolName")
 parser.add_argument("major")
 
+parser.add_argument("description")
+
+parser.add_argument("startDate")
+parser.add_argument("endDate")
+parser.add_argument("acquisitionDate")
+
 
 class Post(Resource):
 
@@ -101,6 +107,7 @@ class Post(Resource):
 
             cursor.execute('SELECT id FROM user WHERE email=%s;', (current_user, ))
             current_user_id = cursor.fetchone()[0]
+            print('!!!!!!!!!!!!!!!!', current_user_id)
             # 각 카테고리 별로 기능 구현
             if category == 'education':
                 sql = '''
@@ -140,6 +147,7 @@ class Post(Resource):
         cursor.execute('SELECT id FROM user WHERE email=%s;', (current_user, ))
         current_user_id = cursor.fetchone()[0]
 
+        print('!!!!!!!!!!!!!!!!', current_user_id)
         # 각 카테고리 별로 기능 구현
         if category == 'education':
             sql = '''
@@ -155,16 +163,19 @@ class Post(Resource):
             cursor.execute(sql, (args['name'], args['description'], current_user_id, ))
         elif category == 'project':
             sql = '''
-            INSERT INTO project (name, description, period, user)
-            VALUES (%s, %s, %s, %s);
+            INSERT INTO project (name, description, startDate, endDate, user)
+            VALUES (%s, %s, %s, %s, %s);
             '''
-            cursor.execute(sql, (args['name'], args['description'], args['period'], current_user_id, ))
+            startDate = args['startDate'].split('T')[0]
+            endDate = args['endDate'].split('T')[0]
+
+            cursor.execute(sql, (args['name'], args['description'], startDate, endDate, current_user_id, ))
         elif category == 'license':
             sql = '''
-            INSERT INTO license (name, issuer, user)
+            INSERT INTO license (name, issuer, acquisitionDate,  user)
             VALUES (%s, %s, %s, %s);
             '''
-            cursor.execute(sql, (args['name'], args['issuer'], current_user_id, ))
+            cursor.execute(sql, (args['name'], args['issuer'], args['acquisitionDate'], current_user_id, ))
         
         
         db.commit()
@@ -198,13 +209,40 @@ class Post(Resource):
         cursor.execute('SELECT id FROM user WHERE email=%s;', (current_user, ))
         current_user_id = cursor.fetchone()[0]
 
-        sql = f'''
-        UPDATE {category} 
-        SET schoolName="{args['schoolName']}", 
-        major="{args['major']}",
-        degree="{args['degree']}"
-        WHERE id={post_id}
-        '''
+        if category == 'education':
+            sql = f'''
+                UPDATE {category} 
+                SET schoolName="{args['schoolName']}", 
+                major="{args['major']}",
+                degree="{args['degree']}"
+                WHERE id={post_id}
+            '''
+        elif category == 'award':
+            sql = f'''
+                UPDATE {category} 
+                SET name="{args['name']}", 
+                description="{args['description']}"
+                WHERE id={post_id}
+            '''
+        elif category == 'project':
+            startDate = args['startDate'].split('T')[0]
+            endDate = args['endDate'].split('T')[0]
+            sql = f'''
+                UPDATE {category} 
+                SET name="{args['name']}", 
+                description="{args['description']}",
+                startDate="{startDate}",
+                endDate="{endDate}"
+                WHERE id={post_id}
+            '''
+        elif category == 'license':
+            sql = f'''
+                UPDATE {category} 
+                SET name="{args['name']}", 
+                issuer="{args['issuer']}",
+                acquisitionDate="{args['acquisitionDate']}"
+                WHERE id={post_id}
+            '''
 
         cursor.execute(sql)
         db.commit()
@@ -215,12 +253,9 @@ class Post(Resource):
         return jsonify(status = 'success', msg="수정 완료", res=res)
         
         
-
-
-
-
 # api 라우팅 등록
 api.add_resource(Post, '/post/<category>', '/post/<category>/<post_id>', '/post/<user_id>/<category>')
+
 
 if __name__ == '__main__':
     app.run(debug=True)

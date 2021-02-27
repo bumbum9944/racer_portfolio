@@ -1,13 +1,16 @@
 import { React, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import url from '../url/http';
 import axios from 'axios';
 
-function Signup() {
+function Signup(props) {
   var [name, setName] = useState('');
   var [email, setEmail] = useState('')
   var [error, setError] = useState('');
   var [password, setPassword] = useState('');
   
+  let history = useHistory();
+
   return (
     <>
       <form onSubmit={
@@ -22,6 +25,7 @@ function Signup() {
             axios.post(url + 'account', data)
             .then(response=>{
               console.log(response);
+              history.push('/login');
             });
           } else {
             console.log('비밀번호가 다릅니다.');

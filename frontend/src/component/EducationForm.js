@@ -8,14 +8,6 @@ function EducationForm(props) {
   var [schoolName, setSchoolName] = useState(props.schoolName);
   var [major, setMajor] = useState(props.major);
 
-  var accessToken = sessionStorage.getItem('token');
-
-  const header = {
-    headers: {
-      Authorization: `Bearer ${accessToken}`
-    }
-  }
-
   function changeSelect(e) {
     setCheckedItem(e.target.value);
   }
@@ -29,7 +21,7 @@ function EducationForm(props) {
           schoolName: e.target.schoolName.value,
           major: e.target.major.value,
           degree: checkedItem
-        }, header)
+        }, props.header)
         .then((res)=>{
           props.changeEduData(res.data.res);
         }).catch((err)=>{
@@ -41,7 +33,7 @@ function EducationForm(props) {
           schoolName: e.target.schoolName.value,
           major: e.target.major.value,
           degree: checkedItem
-        }, header)
+        }, props.header)
         .then((res)=>{
           props.changeEduData(res.data.res);
         }).catch((err)=>{
