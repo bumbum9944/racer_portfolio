@@ -87,7 +87,6 @@ api.add_resource(Account, '/account')
 parser.add_argument("degree")
 parser.add_argument("schoolName")
 parser.add_argument("major")
-parser.add_argument("Authorization")
 
 
 class Post(Resource):
@@ -169,14 +168,59 @@ class Post(Resource):
         
         
         db.commit()
-        cursor.execute('SELECT * FROM education WHERE user=%s;', (current_user_id, ))
+        sql = f'SELECT * FROM {category} WHERE user={current_user_id};'
+        cursor.execute(sql)
         res = cursor.fetchall()
-        return jsonify(status = "success", msg = '저장 성공', res=res)
+        return jsonify(status = 'success', msg = '저장 성공', res=res)
+
+    @jwt_required()
+    def delete(self, category, post_id):
+
+        current_user = get_jwt_identity()
+        cursor.execute('SELECT id FROM user WHERE email=%s;', (current_user, ))
+        current_user_id = cursor.fetchone()[0]
+
+        cursor.execute(f'DELETE FROM {category} WHERE id={post_id}')
+        db.commit()
+
+        cursor.execute(f'SELECT * FROM {category} WHERE user={current_user_id};')
+        res = cursor.fetchall()
+
+        return jsonify(status = 'success', msg="삭제 완료", res=res)
+
+
+
+    @jwt_required()
+    def put(self, category, post_id):
+        args = parser.parse_args()
+
+        current_user = get_jwt_identity()
+        cursor.execute('SELECT id FROM user WHERE email=%s;', (current_user, ))
+        current_user_id = cursor.fetchone()[0]
+
+        sql = f'''
+        UPDATE {category} 
+        SET schoolName="{args['schoolName']}", 
+        major="{args['major']}",
+        degree="{args['degree']}"
+        WHERE id={post_id}
+        '''
+
+        cursor.execute(sql)
+        db.commit()
+
+        cursor.execute(f'SELECT * FROM {category} WHERE user={current_user_id};')
+        res = cursor.fetchall()
+
+        return jsonify(status = 'success', msg="수정 완료", res=res)
+        
+        
+
 
 
 
 # api 라우팅 등록
-api.add_resource(Post, '/post/<category>', '/post/<user_id>/<category>')
+api.add_resource(Post, '/post/<category>', '/post/<category>/<post_id>', '/post/<user_id>/<category>')
 
 if __name__ == '__main__':
     app.run(debug=True)
