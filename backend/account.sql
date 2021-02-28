@@ -31,6 +31,8 @@ create table if not exists project(
     id int not null AUTO_INCREMENT,
     name varchar(100) not null,
     description text default null,
+    startDate date not null,
+    endDate date not null,
     user int not null, 
     primary key (id),
     foreign key (user)
@@ -41,6 +43,7 @@ create table if not exists license(
     id int not null AUTO_INCREMENT,
     name varchar(100) not null,
     issuer varchar(100) not null,
+    acquisitionDate date not null,
     user int not null, 
     primary key (id),
     foreign key (user) 

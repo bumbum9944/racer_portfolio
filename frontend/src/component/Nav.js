@@ -2,20 +2,27 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { withRouter } from 'react-router-dom';
 
-function Control(props) {
+function Nav(props) {
+  let innerTag = ''
+  if (props.isLoggedIn === true) {
+    innerTag = <Link to="/login" onClick={()=>{
+      sessionStorage.removeItem('token');
+      props.setIsLoggedIn(false)
+      props.history.push('/login');
+    }}>로그아웃</Link>
+    
+  } else {
+    innerTag = <>
+      <Link to="/login">로그인</Link>
+      <Link to="/signup">회원가입</Link>
+    </>
+  }
   return (
     <>
       <Link to="/">Home</Link>
-      <Link to="/login">로그인</Link>
-      <Link to="/signup">회원가입</Link>
-      <button onClick={
-        function() {
-          sessionStorage.removeItem('token');
-          props.history.push('/login');
-        }
-      }>로그아웃</button>
+      {innerTag}
     </>
   );
 }
 
-export default withRouter(Control);
+export default withRouter(Nav);

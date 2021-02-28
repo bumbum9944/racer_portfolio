@@ -1,8 +1,12 @@
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import url from '../url/http';
 import axios from 'axios';
 
 function Login(props) {
+
+  let history = useHistory();
+
   return (
     <>
       <form onSubmit={
@@ -16,7 +20,10 @@ function Login(props) {
           axios.post(url + 'account', data)
           .then(response=>{
             sessionStorage.setItem('token', response.data.result.token);
-            props.history.push('/');
+            const accessToken = sessionStorage.getItem('token')
+            props.setAccessToken(accessToken);
+            props.setIsLoggedIn(true);
+            history.push('/');
           });
 
         }
