@@ -13,17 +13,19 @@ function Award(props) {
   var [awardData, setAwardData] = useState([]);
 
   useEffect(()=>{
-    axios.get(url + 'post/award', {
-      headers: {
-        Authorization: `Bearer ${props.accessToken}`
-      }
-    })
-    .then(response=>{
-      setAwardData(response.data.result);
-      
-    }).catch((e)=>{
-      console.log(e)
-    })
+    if (props.accessToken) {
+      axios.get(url + 'post/award', {
+        headers: {
+          Authorization: `Bearer ${props.accessToken}`
+        }
+      })
+      .then(response=>{
+        setAwardData(response.data.result);
+        
+      }).catch((e)=>{
+        console.log(e)
+      })
+    }
   }, [props.accessToken]);
 
   const header = {

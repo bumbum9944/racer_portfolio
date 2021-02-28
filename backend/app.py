@@ -17,18 +17,6 @@ jwt = JWTManager(app)
 #cors 설정
 cors = CORS(app)
 
-# db 연결
-db = pymysql.connect(
-    user = 'root',
-    passwd = '',
-    host = '127.0.0.1',
-    port = 3306,
-    db = 'elice_pjt1',
-    charset = 'utf8'
-)
-
-cursor = db.cursor()
-
 parser = reqparse.RequestParser()
 parser.add_argument("email")
 parser.add_argument("password")
@@ -39,23 +27,34 @@ class Account(Resource):
     def post(self):
         args = parser.parse_args()
 
+        db = pymysql.connect(
+            user = 'root',
+            passwd = '',
+            host = '127.0.0.1',
+            port = 3306,
+            db = 'elice_pjt1',
+            charset = 'utf8'
+        )
+
+        cursor = db.cursor()
+
         # 이름이 없으면 로그인
         if args['name'] == None:
 
-            sql = "SELECT email, password FROM user WHERE email=%s;"
+            sql = "SELECT id, password FROM user WHERE email=%s;"
 
             cursor.execute(sql, (args['email'], ))
-            result = cursor.fetchone()
-
+            res = cursor.fetchone()
+            db.close()
 
             # 유저가 존재하지 않을 경우
-            if result == None:
+            if res == None:
                 return jsonify(status="success", result="존재하지 않는 유저입니다.")
             else:
                 # 유저가 있다면 비밀번호 체크
-                if bcrypt.checkpw(args['password'].encode('utf-8'), result[1].encode('utf-8')):
-                
-                    access_token = create_access_token(identity=args['email'])
+                if bcrypt.checkpw(args['password'].encode('utf-8'), res[1].encode('utf-8')):
+                    
+                    access_token = create_access_token(identity=res[0])
 
                     result = {
                         'msg': '로그인 성공',
@@ -79,7 +78,8 @@ class Account(Resource):
             sql = "SELECT email FROM user WHERE email=%s;"
             cursor.execute(sql, (args['email'], ))
             result = cursor.fetchone()
-            
+            db.close()
+
             return jsonify(status = "success", result = result) 
 
 api.add_resource(Account, '/account')
@@ -93,6 +93,7 @@ parser.add_argument("description")
 parser.add_argument("startDate")
 parser.add_argument("endDate")
 parser.add_argument("acquisitionDate")
+parser.add_argument("issuer")
 
 
 class Post(Resource):
@@ -101,40 +102,29 @@ class Post(Resource):
     def get(self, category, user_id=None):
         args = parser.parse_args()
 
+        db = pymysql.connect(
+            user = 'root',
+            passwd = '',
+            host = '127.0.0.1',
+            port = 3306,
+            db = 'elice_pjt1',
+            charset = 'utf8'
+        )
+
+        cursor = db.cursor()
+
         # user_id가 없으면 나의 정보 요청으로 인식
         if user_id == None:
-            current_user = get_jwt_identity()
-
-            cursor.execute('SELECT id FROM user WHERE email=%s;', (current_user, ))
-            current_user_id = cursor.fetchone()[0]
-            print('!!!!!!!!!!!!!!!!', current_user_id)
-            # 각 카테고리 별로 기능 구현
-            if category == 'education':
-                sql = '''
-                SELECT * FROM education WHERE user=%s;
-                '''
-                # cursor.execute(sql, (current_user_id, ))
-                cursor.execute(sql, (current_user_id, ))
-            elif category == 'award':
-                sql = '''
-                SELECT * FROM award WHERE user=%s;
-                '''
-                cursor.execute(sql, (current_user_id, ))
-            elif category == 'project':
-                sql = '''
-                SELECT * FROM project WHERE user=%s;
-                '''
-                cursor.execute(sql, (current_user_id, ))
-            elif category == 'license':
-                sql = '''
-                SELECT * FROM license WHERE user=%s;
-                '''
-                cursor.execute(sql, (current_user_id, ))
+            current_user_id = get_jwt_identity()
+            sql=f'SELECT * FROM {category} WHERE user="{current_user_id}";'
+            cursor.execute(sql)
             
             result = cursor.fetchall()
-
+            
         else: # 다른 유저 정보 요청
             pass
+        
+        db.close()
 
         return jsonify(status = "success", result = result)
 
@@ -142,12 +132,19 @@ class Post(Resource):
     @jwt_required()
     def post(self, category):
         args = parser.parse_args()
-        current_user = get_jwt_identity()
+        current_user_id = get_jwt_identity()
 
-        cursor.execute('SELECT id FROM user WHERE email=%s;', (current_user, ))
-        current_user_id = cursor.fetchone()[0]
+        db = pymysql.connect(
+            user = 'root',
+            passwd = '',
+            host = '127.0.0.1',
+            port = 3306,
+            db = 'elice_pjt1',
+            charset = 'utf8'
+        )
 
-        print('!!!!!!!!!!!!!!!!', current_user_id)
+        cursor = db.cursor()
+
         # 각 카테고리 별로 기능 구현
         if category == 'education':
             sql = '''
@@ -175,27 +172,39 @@ class Post(Resource):
             INSERT INTO license (name, issuer, acquisitionDate,  user)
             VALUES (%s, %s, %s, %s);
             '''
-            cursor.execute(sql, (args['name'], args['issuer'], args['acquisitionDate'], current_user_id, ))
-        
+            acquisitionDate = args['acquisitionDate'].split('T')[0]
+            cursor.execute(sql, (args['name'], args['issuer'], acquisitionDate, current_user_id, ))
         
         db.commit()
+
         sql = f'SELECT * FROM {category} WHERE user={current_user_id};'
         cursor.execute(sql)
         res = cursor.fetchall()
+        db.close()
         return jsonify(status = 'success', msg = '저장 성공', res=res)
 
     @jwt_required()
     def delete(self, category, post_id):
 
-        current_user = get_jwt_identity()
-        cursor.execute('SELECT id FROM user WHERE email=%s;', (current_user, ))
-        current_user_id = cursor.fetchone()[0]
+        db = pymysql.connect(
+            user = 'root',
+            passwd = '',
+            host = '127.0.0.1',
+            port = 3306,
+            db = 'elice_pjt1',
+            charset = 'utf8'
+        )
+
+        cursor = db.cursor()
+
+        current_user_id = get_jwt_identity()
 
         cursor.execute(f'DELETE FROM {category} WHERE id={post_id}')
         db.commit()
 
         cursor.execute(f'SELECT * FROM {category} WHERE user={current_user_id};')
         res = cursor.fetchall()
+        db.close()
 
         return jsonify(status = 'success', msg="삭제 완료", res=res)
 
@@ -204,10 +213,18 @@ class Post(Resource):
     @jwt_required()
     def put(self, category, post_id):
         args = parser.parse_args()
+        current_user_id = get_jwt_identity()
 
-        current_user = get_jwt_identity()
-        cursor.execute('SELECT id FROM user WHERE email=%s;', (current_user, ))
-        current_user_id = cursor.fetchone()[0]
+        db = pymysql.connect(
+            user = 'root',
+            passwd = '',
+            host = '127.0.0.1',
+            port = 3306,
+            db = 'elice_pjt1',
+            charset = 'utf8'
+        )
+
+        cursor = db.cursor()
 
         if category == 'education':
             sql = f'''
@@ -236,25 +253,27 @@ class Post(Resource):
                 WHERE id={post_id}
             '''
         elif category == 'license':
+            acquisitionDate = args['acquisitionDate'].split('T')[0]
             sql = f'''
                 UPDATE {category} 
                 SET name="{args['name']}", 
                 issuer="{args['issuer']}",
-                acquisitionDate="{args['acquisitionDate']}"
+                acquisitionDate="{acquisitionDate}"
                 WHERE id={post_id}
             '''
 
         cursor.execute(sql)
         db.commit()
 
-        cursor.execute(f'SELECT * FROM {category} WHERE user={current_user_id};')
+        cursor.execute(f'SELECT * FROM {category} WHERE user="{current_user_id}";')
         res = cursor.fetchall()
+        db.close()
 
         return jsonify(status = 'success', msg="수정 완료", res=res)
         
         
 # api 라우팅 등록
-api.add_resource(Post, '/post/<category>', '/post/<category>/<post_id>', '/post/<user_id>/<category>')
+api.add_resource(Post, '/post/<category>', '/post/<category>/<post_id>', '/user/<user_id>/post/<category>')
 
 
 if __name__ == '__main__':

@@ -13,17 +13,19 @@ function License(props) {
   var [licenseData, setLicenseData] = useState([]);
 
   useEffect(()=>{
-    axios.get(url + 'post/license', {
-      headers: {
-        Authorization: `Bearer ${props.accessToken}`
-      }
-    })
-    .then(response=>{
-      setLicenseData(response.data.result);
-      
-    }).catch((e)=>{
-      console.log(e)
-    })
+    if (props.accessToken) {
+      axios.get(url + 'post/license', {
+        headers: {
+          Authorization: `Bearer ${props.accessToken}`
+        }
+      })
+      .then(response=>{
+        setLicenseData(response.data.result);
+        
+      }).catch((e)=>{
+        console.log(e)
+      })
+    }
   }, [props.accessToken]);
 
   const header = {
@@ -42,7 +44,7 @@ function License(props) {
     }} changeMode={(data)=>{
       setMode(data);
     }} index={index} postId={data[0]} name={data[1]}
-    description={data[2]} acquisitionDate={data[3]}
+    issuer={data[2]} acquisitionDate={data[3]}
     header={header} />
   )
   

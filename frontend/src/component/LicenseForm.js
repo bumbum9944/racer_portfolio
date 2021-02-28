@@ -17,7 +17,7 @@ function LicenseForm(props) {
         axios.post(url + 'post/license',{
           name: e.target.name.value,
           issuer: e.target.issuer.value,
-          startDate: startDate,
+          acquisitionDate: startDate,
         }, props.header)
         .then((res)=>{
           props.changeLicenseData(res.data.res);
@@ -29,7 +29,7 @@ function LicenseForm(props) {
         axios.put(url + `post/license/${props.postId}`,{
           name: e.target.name.value,
           issuer: e.target.issuer.value,
-          startDate: startDate,
+          acquisitionDate: startDate,
         }, props.header)
         .then((res)=>{
           props.changeLicenseData(res.data.res);

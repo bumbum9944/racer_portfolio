@@ -13,17 +13,19 @@ function Project(props) {
   var [projectData, setProjectData] = useState([]);
 
   useEffect(()=>{
-    axios.get(url + 'post/project', {
-      headers: {
-        Authorization: `Bearer ${props.accessToken}`
-      }
-    })
-    .then(response=>{
-      setProjectData(response.data.result);
-      
-    }).catch((e)=>{
-      console.log(e)
-    })
+    if (props.accessToken) {
+      axios.get(url + 'post/project', {
+        headers: {
+          Authorization: `Bearer ${props.accessToken}`
+        }
+      })
+      .then(response=>{
+        setProjectData(response.data.result);
+        
+      }).catch((e)=>{
+        console.log(e)
+      })
+    }
   }, [props.accessToken]);
 
   const header = {

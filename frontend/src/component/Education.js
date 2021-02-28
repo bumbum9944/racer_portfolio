@@ -11,22 +11,25 @@ function Education(props) {
   var [mode, setMode] = useState('READ');
   var [eduData, setEduData] = useState([]);
   
+  let header
+
   useEffect(()=>{
-    console.log(props.accessToken)
-    axios.get(url + 'post/education', {
-      headers: {
-        Authorization: `Bearer ${props.accessToken}`
-      }
-    })
-    .then(response=>{
-      setEduData(response.data.result);
-      
-    }).catch((e)=>{
-      console.log(e)
-    })
+    if (props.accessToken) {
+      axios.get(url + 'post/education', {
+        headers: {
+          Authorization: `Bearer ${props.accessToken}`
+        }
+      })
+      .then(response=>{
+        setEduData(response.data.result);
+        
+      }).catch((e)=>{
+        console.log(e)
+      })
+    }
   }, [props.accessToken]);
 
-  const header = {
+  header = {
     headers: {
       Authorization: `Bearer ${props.accessToken}`
     }
