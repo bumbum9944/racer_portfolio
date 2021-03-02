@@ -2,7 +2,7 @@ import { React, useState, useEffect } from 'react';
 import { Route, useHistory } from 'react-router-dom';
 import Login from './component/Login'
 import Signup from './component/Signup'
-import Nav from './component/Nav'
+import NavBar from './component/NavBar'
 import Home from './component/Home'
 
 
@@ -21,7 +21,7 @@ function App(props) {
   
   return (
     <div className="App">
-      <Nav isLoggedIn={isLoggedIn} setIsLoggedIn={(data)=>{
+      <NavBar isLoggedIn={isLoggedIn} setIsLoggedIn={(data)=>{
         setIsLoggedIn(data);
       }} />
       <div className="d-flex justify-content-center">
