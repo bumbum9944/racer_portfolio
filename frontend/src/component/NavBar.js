@@ -7,12 +7,17 @@ function NavBar(props) {
   let innerTag = '';
 
   if (props.isLoggedIn === true) {
-    innerTag = <Nav.Link as="li" onClick={()=>{
-      sessionStorage.removeItem('token');
-      props.setIsLoggedIn(false);
-      props.history.push('/login');
-    }}>로그아웃</Nav.Link>
-    
+    innerTag = 
+    <>
+      <Nav.Link onClick={()=>{
+        history.push('/mypage');
+      }}>마이페이지</Nav.Link>
+      <Nav.Link onClick={()=>{
+        sessionStorage.removeItem('token');
+        props.setIsLoggedIn(false);
+        history.push('/login');
+      }}>로그아웃</Nav.Link>
+    </>
   } else {
     innerTag = <>
       <Nav.Link onClick={()=>{
@@ -34,16 +39,11 @@ function NavBar(props) {
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="mr-auto">
           <Nav.Link onClick={()=>{
-            if(props.isLoggedIn === true) {
-              history.push('/');
-            } else {
-              history.push('/login');
-            }
+            history.push('/');
           }}>
             Home
           </Nav.Link>
           {innerTag}
-          <Nav.Link>Network</Nav.Link>
         </Nav>
       </Navbar.Collapse>
     </Navbar>

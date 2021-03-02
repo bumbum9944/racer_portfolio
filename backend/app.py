@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from flask_restful import Resource, Api, reqparse
 import pymysql
+from werkzeug.utils import secure_filename
 from flask_cors import CORS
 import bcrypt
 from flask_jwt_extended import (JWTManager, jwt_required, create_access_token, get_jwt_identity)
@@ -24,6 +25,40 @@ parser.add_argument("name")
 
 
 class Account(Resource):
+
+    def get(self):
+
+        db = pymysql.connect(
+            user = 'root',
+            passwd = '',
+            host = '127.0.0.1',
+            port = 3306,
+            db = 'elice_pjt1',
+            charset = 'utf8'
+        )
+
+        cursor = db.cursor()
+
+        sql = f'''
+        SELECT name, email
+        FROM user
+        '''
+
+            # sql = f'''
+            #     SELECT u.name, u.email
+            #     p.introduction, p.image 
+            #     FROM user AS u
+            #     INNER JOIN profile AS p
+            #     ON u.id=p.user;
+            # '''
+
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        db.close()
+
+        return jsonify(status = "success", result = result) 
+
+
     def post(self):
         args = parser.parse_args()
 

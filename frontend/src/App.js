@@ -1,9 +1,11 @@
 import { React, useState, useEffect } from 'react';
 import { Route, useHistory } from 'react-router-dom';
-import Login from './component/Login'
-import Signup from './component/Signup'
-import NavBar from './component/NavBar'
-import Home from './component/Home'
+import { Container } from 'react-bootstrap';
+import Login from './component/Login';
+import Signup from './component/Signup';
+import NavBar from './component/NavBar';
+import Home from './component/Home';
+import Network from './component/Network';
 
 
 function App(props) {
@@ -24,14 +26,15 @@ function App(props) {
       <NavBar isLoggedIn={isLoggedIn} setIsLoggedIn={(data)=>{
         setIsLoggedIn(data);
       }} />
-      <div className="d-flex justify-content-center">
-        <Route path="/" render={()=> <Home accessToken={accessToken} />} exact={true} />
+      <div>
+        <Route path="/mypage" render={()=> <Home accessToken={accessToken} />} />
         <Route path="/login" render={()=> <Login setIsLoggedIn={(data)=>{
           setIsLoggedIn(data);
         }} setAccessToken={(data)=>{
           setAccessToken(data);
         }} />} />
         <Route path="/signup" component={Signup} />
+        <Route path="/" render={()=> <Network accessToken={accessToken} />} exact={true} />
       </div>
     </div>
   );

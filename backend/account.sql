@@ -6,6 +6,17 @@ create table if not exists user(
     primary key (id)
 );
 
+create table if not exists profile(
+    id int not null AUTO_INCREMENT,
+    introduction text default null,
+    image varchar(255) default null,
+    user int not null,
+    primary key (id),
+    foreign key (user) 
+    references user (id)
+    on delete cascade
+);
+
 create table if not exists education(
     id int not null AUTO_INCREMENT,
     degree varchar(100) not null,
@@ -15,6 +26,7 @@ create table if not exists education(
     primary key (id),
     foreign key (user) 
     references user (id)
+    on delete cascade
 );
 
 create table if not exists award(
@@ -25,6 +37,7 @@ create table if not exists award(
     primary key (id),
     foreign key (user) 
     references user (id)
+    on delete cascade
 );
 
 create table if not exists project(
@@ -37,6 +50,7 @@ create table if not exists project(
     primary key (id),
     foreign key (user)
     references user (id)
+    on delete cascade
 );
 
 create table if not exists license(
@@ -48,4 +62,5 @@ create table if not exists license(
     primary key (id),
     foreign key (user) 
     references user (id)
+    on delete cascade
 );
