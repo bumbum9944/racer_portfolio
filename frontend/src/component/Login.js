@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Container } from 'react-bootstrap';
 import url from '../url/http';
 import axios from 'axios';
 
@@ -9,10 +9,11 @@ function Login(props) {
   let history = useHistory();
 
   return (
-    <>
-      <form onSubmit={
+    <Container className="mt-5">
+      <Form onSubmit={
         function(e) {
           e.preventDefault();
+          console.log(e.target)
           var data = {
             'email': e.target.email.value,
             'password': e.target.password.value
@@ -23,49 +24,25 @@ function Login(props) {
             sessionStorage.setItem('token', response.data.result.token);
             const accessToken = sessionStorage.getItem('token')
             props.setAccessToken(accessToken);
-            props.setIsLoggedIn(true);
+            props.setCurrentUser(response.data.result.currentUser);
             history.push('/mypage');
           });
 
         }
       }>
-        <div>
-          <label>
-            email:
-            <input type="text" name="email" placeholder="abc@email.com" />
-          </label>
-        </div>
-        <div>
-          <label>
-            password:
-            <input type="text" name="password" placeholder="123@?#abc" />
-          </label>
-        </div>
-        <div>
-          <button type="submit">로그인</button>
-        </div>
-      </form>
-      <Form>
         <Form.Group controlId="formBasicEmail">
-          <Form.Label>Email address</Form.Label>
-          <Form.Control type="email" placeholder="Enter email" />
-          <Form.Text className="text-muted">
-            We'll never share your email with anyone else.
-          </Form.Text>
+          <Form.Label>Email</Form.Label>
+          <Form.Control name="email" type="email" placeholder="Enter email" />
         </Form.Group>
-
         <Form.Group controlId="formBasicPassword">
           <Form.Label>Password</Form.Label>
-          <Form.Control type="password" placeholder="Password" />
-        </Form.Group>
-        <Form.Group controlId="formBasicCheckbox">
-          <Form.Check type="checkbox" label="Check me out" />
+          <Form.Control name="password" type="password" placeholder="Password" />
         </Form.Group>
         <Button variant="primary" type="submit">
-          Submit
+          로그인
         </Button>
       </Form>
-    </>
+    </Container>
   );
 }
 

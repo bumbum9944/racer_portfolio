@@ -6,7 +6,7 @@ function NavBar(props) {
   let history = useHistory();
   let innerTag = '';
 
-  if (props.isLoggedIn === true) {
+  if (props.accessToken !== null) {
     innerTag = 
     <>
       <Nav.Link onClick={()=>{
@@ -14,7 +14,8 @@ function NavBar(props) {
       }}>마이페이지</Nav.Link>
       <Nav.Link onClick={()=>{
         sessionStorage.removeItem('token');
-        props.setIsLoggedIn(false);
+        props.setAccessToken(null);
+        props.setCurrentUser(null);
         history.push('/login');
       }}>로그아웃</Nav.Link>
     </>

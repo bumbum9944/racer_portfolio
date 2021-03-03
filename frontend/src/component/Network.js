@@ -7,6 +7,7 @@ import axios from 'axios';
 function Network(props) {
 
   let [userData, setUserData] = useState([]);
+  let innerTag = [];
 
   useEffect(()=>{
     axios.get(url + 'account')
@@ -15,15 +16,18 @@ function Network(props) {
     }).catch((err)=>{
       console.log(err);
     });
-  }, []);
+  }, [props]);
+  for (let i=0; i < userData.length; i++) {
+    if (userData[i][0] !== props.currentUser) {
+      innerTag.push(<NetworkInner
+        key={i}
+        name={userData[i][1]}
+        email={userData[i][2]} />)
+    }
+  }
 
-  let innerTag = userData.map((data, index)=><NetworkInner
-    key={index} 
-    name={data[0]}
-    email={data[1]} />);
-
-  if (userData.length % 2 === 1) {
-    innerTag.push(<Col col="4"></Col>)
+  if (innerTag.length % 2 === 1) {
+    innerTag.push(<Col key={userData.length} col="4"></Col>)
   }
   return (
     <div>

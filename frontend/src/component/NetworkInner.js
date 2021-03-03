@@ -1,9 +1,9 @@
 import React from 'react';
 import { Card, Button, Col } from 'react-bootstrap';
-import { useHistory } from 'react-router-dom';
+// import { useHistory } from 'react-router-dom';
 
 function NetworkInner(props) {
-    
+  
   return(
     <Col col="4" className="my-2">
       <Card style={{ width: '18rem' }}>

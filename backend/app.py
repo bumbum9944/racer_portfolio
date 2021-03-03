@@ -40,7 +40,7 @@ class Account(Resource):
         cursor = db.cursor()
 
         sql = f'''
-        SELECT name, email
+        SELECT id, name, email
         FROM user
         '''
 
@@ -93,7 +93,8 @@ class Account(Resource):
 
                     result = {
                         'msg': '로그인 성공',
-                        'token': access_token
+                        'token': access_token,
+                        'currentUser': res[0]
                     }
                     return jsonify(status="success", result=result)
                 else:
