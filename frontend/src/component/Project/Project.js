@@ -1,5 +1,5 @@
 import { React, useState, useEffect } from 'react';
-import url from '../url/http';
+import url from '../../url/http';
 import axios from 'axios';
 import { Card, Button } from 'react-bootstrap';
 import ProjectInner from './ProjectInner';
@@ -13,20 +13,26 @@ function Project(props) {
   var [projectData, setProjectData] = useState([]);
 
   useEffect(()=>{
-    if (props.accessToken) {
-      axios.get(url + 'post/project', {
-        headers: {
-          Authorization: `Bearer ${props.accessToken}`
-        }
-      })
-      .then(response=>{
-        setProjectData(response.data.result);
-        
-      }).catch((e)=>{
-        console.log(e)
-      })
+    if (projectData.length === 0) {
+      if (props.currentUser === props.targetId) {
+        axios.get(url + `project/${props.currentUser}`)
+        .then(response=>{
+          setProjectData(response.data.result);
+          
+        }).catch((e)=>{
+          console.log(e)
+        })
+      } else {
+        axios.get(url + `project/${props.targetId}`)
+        .then(response=>{
+          setProjectData(response.data.result);
+          
+        }).catch((e)=>{
+          console.log(e)
+        })
+      }
     }
-  }, [props.accessToken]);
+  }, [props, projectData.length]);
 
   const header = {
     headers: {
@@ -45,7 +51,10 @@ function Project(props) {
       setMode(data);
     }} index={index} postId={data[0]} name={data[1]}
     description={data[2]} startDate={data[3]} endDate={data[4]}
-    header={header} />
+    header={header} 
+    targetId={props.targetId}
+    currentUser={props.currentUser}
+    />
   )
   
   function dateToYear(date) {
@@ -62,6 +71,24 @@ function Project(props) {
     }
     
     return year + '-' + month + '-' + dt;
+  }
+
+  let buttonTag
+  if (props.currentUser === props.targetId) {
+    buttonTag = 
+    <div className="d-flex justify-content-end">
+      <Button variant="primary" onClick={function(){
+        if(mode === 'READ') {
+          setMode('CREATE');
+        } else {
+          setMode('READ');
+        }
+      }}>
+        추가
+      </Button>
+    </div>
+  } else {
+    buttonTag = <></>
   }
 
   let now = dateToYear(new Date());
@@ -97,17 +124,7 @@ function Project(props) {
           <Card.Title>프로젝트</Card.Title>
           {innerTag}
           {createForm}
-          <div className="d-flex justify-content-end">
-            <Button variant="primary" onClick={function(){
-              if(mode === 'READ') {
-                setMode('CREATE');
-              } else {
-                setMode('READ');
-              }
-            }}>
-              추가
-            </Button>
-          </div>
+          {buttonTag}
         </Card.Body>
       </Card>
   );

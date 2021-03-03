@@ -1,7 +1,7 @@
 import { React } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import axios from 'axios';
-import url from '../url/http';
+import url from '../../url/http';
 
 function AwardForm(props) {
 
@@ -10,7 +10,7 @@ function AwardForm(props) {
       e.preventDefault();
       if(props.formMode === '제출') {
 
-        axios.post(url + 'post/award',{
+        axios.post(url + 'award/post',{
           name: e.target.name.value,
           description: e.target.description.value,
         }, props.header)
@@ -21,7 +21,7 @@ function AwardForm(props) {
         });
       } else {
 
-        axios.put(url + `post/award/${props.postId}`,{
+        axios.put(url + `award/post/${props.postId}`,{
           name: e.target.name.value,
           description: e.target.description.value,
         }, props.header)

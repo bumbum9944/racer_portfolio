@@ -10,13 +10,13 @@ function NavBar(props) {
     innerTag = 
     <>
       <Nav.Link onClick={()=>{
-        history.push('/mypage');
+        history.push(`/mypage/${props.currentUser}`);
       }}>마이페이지</Nav.Link>
       <Nav.Link onClick={()=>{
         sessionStorage.removeItem('token');
         props.setAccessToken(null);
         props.setCurrentUser(null);
-        history.push('/login');
+        history.push('/');
       }}>로그아웃</Nav.Link>
     </>
   } else {
@@ -34,7 +34,7 @@ function NavBar(props) {
     </>
   }
   return (
-    <Navbar bg="light" expand="lg">
+    <Navbar sticky="top" bg="light" expand="lg">
       <Navbar.Brand>Portfolio</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">

@@ -1,5 +1,5 @@
 import { React, useState, useEffect } from 'react';
-import url from '../url/http';
+import url from '../../url/http';
 import axios from 'axios';
 import { Card, Button } from 'react-bootstrap';
 import LicenseInner from './LicenseInner';
@@ -13,20 +13,26 @@ function License(props) {
   var [licenseData, setLicenseData] = useState([]);
 
   useEffect(()=>{
-    if (props.accessToken) {
-      axios.get(url + 'post/license', {
-        headers: {
-          Authorization: `Bearer ${props.accessToken}`
-        }
-      })
-      .then(response=>{
-        setLicenseData(response.data.result);
-        
-      }).catch((e)=>{
-        console.log(e)
-      })
+    if (licenseData.length === 0) {
+      if (props.currentUser === props.targetId) {
+        axios.get(url + `license/${props.currentUser}`)
+        .then(response=>{
+          setLicenseData(response.data.result);
+          
+        }).catch((e)=>{
+          console.log(e)
+        })
+      } else {
+        axios.get(url + `license/${props.targetId}`)
+        .then(response=>{
+          setLicenseData(response.data.result);
+          
+        }).catch((e)=>{
+          console.log(e)
+        })
+      }
     }
-  }, [props.accessToken]);
+  }, [props, licenseData.length]);
 
   const header = {
     headers: {
@@ -37,15 +43,26 @@ function License(props) {
   var createForm = '';
   
   var innerTag = licenseData.map((data, index)=>
-    <LicenseInner key={index} changeTargetIndex={(data)=>{
-      setTargetIndex(data);
-    }} changeLicenseData={(data)=>{
-      setLicenseData(data);
-    }} changeMode={(data)=>{
-      setMode(data);
-    }} index={index} postId={data[0]} name={data[1]}
-    issuer={data[2]} acquisitionDate={data[3]}
-    header={header} />
+    <LicenseInner 
+      key={index} 
+      changeTargetIndex={(data)=>{
+        setTargetIndex(data);
+      }} 
+      changeLicenseData={(data)=>{
+        setLicenseData(data);
+      }} 
+      changeMode={(data)=>{
+        setMode(data);
+      }} 
+      index={index} 
+      postId={data[0]} 
+      name={data[1]}
+      issuer={data[2]} 
+      acquisitionDate={data[3]}
+      header={header} 
+      targetId={props.targetId}
+      currentUser={props.currentUser}
+    />
   )
   
   function dateToYear(date) {
@@ -62,6 +79,24 @@ function License(props) {
     }
     
     return year + '-' + month + '-' + dt;
+  }
+
+  let buttonTag
+  if (props.currentUser === props.targetId) {
+    buttonTag = 
+    <div className="d-flex justify-content-end">
+      <Button variant="primary" onClick={function(){
+        if(mode === 'READ') {
+          setMode('CREATE');
+        } else {
+          setMode('READ');
+        }
+      }}>
+        추가
+      </Button>
+    </div>
+  } else {
+    buttonTag = <></>
   }
 
   let now = dateToYear(new Date());
@@ -95,17 +130,7 @@ function License(props) {
           <Card.Title>자격증</Card.Title>
           {innerTag}
           {createForm}
-          <div className="d-flex justify-content-end">
-            <Button variant="primary" onClick={function(){
-              if(mode === 'READ') {
-                setMode('CREATE');
-              } else {
-                setMode('READ');
-              }
-            }}>
-              추가
-            </Button>
-          </div>
+          {buttonTag}
         </Card.Body>
       </Card>
   );

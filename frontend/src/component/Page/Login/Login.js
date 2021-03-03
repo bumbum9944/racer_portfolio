@@ -1,7 +1,7 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { Form, Button, Container } from 'react-bootstrap';
-import url from '../url/http';
+import url from '../../../url/http';
 import axios from 'axios';
 
 function Login(props) {
@@ -13,7 +13,6 @@ function Login(props) {
       <Form onSubmit={
         function(e) {
           e.preventDefault();
-          console.log(e.target)
           var data = {
             'email': e.target.email.value,
             'password': e.target.password.value
@@ -25,7 +24,7 @@ function Login(props) {
             const accessToken = sessionStorage.getItem('token')
             props.setAccessToken(accessToken);
             props.setCurrentUser(response.data.result.currentUser);
-            history.push('/mypage');
+            history.push(`/mypage/${response.data.result.currentUser}`);
           });
 
         }

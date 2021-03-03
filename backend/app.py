@@ -22,11 +22,16 @@ parser = reqparse.RequestParser()
 parser.add_argument("email")
 parser.add_argument("password")
 parser.add_argument("name")
+parser.add_argument("target")
+
 
 
 class Account(Resource):
 
     def get(self):
+        args = parser.parse_args()
+
+        search_target = args["target"]
 
         db = pymysql.connect(
             user = 'root',
@@ -39,10 +44,12 @@ class Account(Resource):
 
         cursor = db.cursor()
 
-        sql = f'''
-        SELECT id, name, email
-        FROM user
-        '''
+        if search_target == None or search_target == 'all':
+
+            sql = f'''
+                SELECT id, name, email
+                FROM user
+            '''
 
             # sql = f'''
             #     SELECT u.name, u.email
@@ -51,9 +58,24 @@ class Account(Resource):
             #     INNER JOIN profile AS p
             #     ON u.id=p.user;
             # '''
+            cursor.execute(sql)
+            result = cursor.fetchall()
+        else:
+            if len(search_target) > 1:
+                sql = f'''
+                    SELECT id, name, email
+                    FROM user
+                    WHERE
+                    name LIKE '%{search_target}%';
+                '''
 
-        cursor.execute(sql)
-        result = cursor.fetchall()
+                cursor.execute(sql)
+                result = cursor.fetchall()
+                if len(result) == 0:
+                    result = 'nothing'
+            else:
+                result = 'lack'
+
         db.close()
 
         return jsonify(status = "success", result = result) 
@@ -134,8 +156,7 @@ parser.add_argument("issuer")
 
 class Post(Resource):
 
-    @jwt_required()
-    def get(self, category, user_id=None):
+    def get(self, category, user_id):
         args = parser.parse_args()
 
         db = pymysql.connect(
@@ -149,16 +170,11 @@ class Post(Resource):
 
         cursor = db.cursor()
 
-        # user_id가 없으면 나의 정보 요청으로 인식
-        if user_id == None:
-            current_user_id = get_jwt_identity()
-            sql=f'SELECT * FROM {category} WHERE user="{current_user_id}";'
-            cursor.execute(sql)
+        sql=f'SELECT * FROM {category} WHERE user="{user_id}";'
+        cursor.execute(sql)
+        
+        result = cursor.fetchall()
             
-            result = cursor.fetchall()
-            
-        else: # 다른 유저 정보 요청
-            pass
         
         db.close()
 
@@ -309,7 +325,7 @@ class Post(Resource):
         
         
 # api 라우팅 등록
-api.add_resource(Post, '/post/<category>', '/post/<category>/<post_id>', '/user/<user_id>/post/<category>')
+api.add_resource(Post, '/<category>/<user_id>/', '/<category>/post', '/<category>/post/<post_id>')
 
 
 if __name__ == '__main__':
