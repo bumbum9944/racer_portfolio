@@ -1,14 +1,19 @@
+import os
+import datetime
 from flask import Flask, jsonify
 from flask_restful import Resource, Api, reqparse
 import pymysql
 from werkzeug.utils import secure_filename
+from werkzeug.datastructures import FileStorage
 from flask_cors import CORS
 import bcrypt
 from flask_jwt_extended import (JWTManager, jwt_required, create_access_token, get_jwt_identity)
 from config import Config
 
+uploads_dir = os.path.join('./', 'static')
+os.makedirs(uploads_dir, exist_ok=True)
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static')
 api = Api(app)
 
 #jwt 설정
@@ -83,7 +88,7 @@ class Account(Resource):
                     WHERE id={user_id};
                 '''
             cursor.execute(sql)
-            result = cursor.fetchone
+            result = cursor.fetchone()
 
         db.close()
 
@@ -142,12 +147,20 @@ class Account(Resource):
             cursor.execute(sql, (args['name'], args['email'], encrypted_password, ))
             db.commit()
 
-            sql = "SELECT email FROM user WHERE email=%s;"
+            sql = "SELECT id FROM user WHERE email=%s;"
             cursor.execute(sql, (args['email'], ))
-            result = cursor.fetchone()
+            user_id = cursor.fetchone()[0]
+
+            sql = f'''
+                INSERT INTO profile(user)
+                VALUES({user_id});
+            '''
+            cursor.execute(sql)
+            db.commit()
+
             db.close()
 
-            return jsonify(status = "success", result = result) 
+            return jsonify(status = "success", result = "회원가입 성공") 
 
 api.add_resource(Account, '/account', '/account/<user_id>')
 
@@ -161,6 +174,9 @@ parser.add_argument("startDate")
 parser.add_argument("endDate")
 parser.add_argument("acquisitionDate")
 parser.add_argument("issuer")
+
+parser.add_argument("introduction")
+parser.add_argument("profile_image", type=FileStorage, location='files')
 
 
 class Post(Resource):
@@ -194,7 +210,6 @@ class Post(Resource):
     def post(self, category):
         args = parser.parse_args()
         current_user_id = get_jwt_identity()
-
         db = pymysql.connect(
             user = 'root',
             passwd = '',
@@ -235,6 +250,22 @@ class Post(Resource):
             '''
             acquisitionDate = args['acquisitionDate'].split('T')[0]
             cursor.execute(sql, (args['name'], args['issuer'], acquisitionDate, current_user_id, ))
+
+        elif category == 'profile':
+            profile = args['profile_image']
+            if profile:
+                nowDate = datetime.datetime.now()
+                file_name = secure_filename(nowDate.strftime('%Y-%m-%d %H%M%S') + profile.filename)
+                profile_path = os.path.join(uploads_dir, file_name)
+                profile.save(profile_path)
+            else:
+                profile_path=''
+
+            sql = f'''
+                INSERT INTO profile (introduction, image, user)
+                VALUES ('{args['introduction']}', '{profile_path}', {current_user_id});
+            '''
+            cursor.execute(sql)
         
         db.commit()
 
@@ -321,6 +352,23 @@ class Post(Resource):
                 issuer="{args['issuer']}",
                 acquisitionDate="{acquisitionDate}"
                 WHERE id={post_id}
+            '''
+        elif category == 'profile':
+            profile = args['profile_image']
+            if profile:
+                nowDate = datetime.datetime.now()
+                file_name = secure_filename(nowDate.strftime('%Y-%m-%d %H%M%S') + profile.filename)
+                profile_path = os.path.join(uploads_dir+'/', file_name)
+                profile.save(profile_path)
+            else:
+                profile_path=''
+
+            sql = f'''
+                UPDATE {category}
+                SET
+                introduction='{args['introduction']}',
+                image='{profile_path}'
+                WHERE id={post_id};
             '''
 
         cursor.execute(sql)

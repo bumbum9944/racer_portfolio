@@ -16,7 +16,7 @@ function ProfileInner(props) {
     buttonTag = <></>
   }
 
-  let profileImage = <img src={props.imageUrl} style={{borderRadius: '70%', width: '60%'}} alt="profile-img" />
+  let profileImage = <img src={props.imageUrl} style={{borderRadius: '70%', width: '60%', height: '60%'}} alt="profile-img" />
 
   return(
     <Card key={props.index} className="mb-2" >
