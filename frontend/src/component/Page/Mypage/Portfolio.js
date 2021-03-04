@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Container } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import Education from '../../Education/Education'
 import Award from '../../Award/Award'
 import Project from '../../Project/Project'
@@ -10,7 +10,11 @@ function Portfolio(props) {
 
   return (
     <Container fluid className="d-flex p-0">
-    <Profile />  
+    <Profile 
+      accessToken={props.accessToken}
+      currentUser={props.currentUser} 
+      targetId={Number(props.targetId)}
+    />  
     <div style={{width: '70%'}}>
       <Education 
         targetId={Number(props.targetId)} 

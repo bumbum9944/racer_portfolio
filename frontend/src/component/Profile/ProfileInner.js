@@ -16,14 +16,14 @@ function ProfileInner(props) {
     buttonTag = <></>
   }
 
-  let profileImage = <img src={props.image} style={{borderRadius: '70%', width: '60%'}} alt="profile-img" />
+  let profileImage = <img src={props.imageUrl} style={{borderRadius: '70%', width: '60%'}} alt="profile-img" />
 
   return(
     <Card key={props.index} className="mb-2" >
-      {profileImage}
-      <Card.Body className="d-flex">
+      <Card.Body className="">
+        {profileImage}
         <Card.Text>
-          {props.introduction}
+          소개 : {props.introduction}
         </Card.Text>
         {buttonTag}
       </Card.Body>

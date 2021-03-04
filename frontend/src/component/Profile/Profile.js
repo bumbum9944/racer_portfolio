@@ -4,35 +4,35 @@ import axios from 'axios';
 import { Card } from 'react-bootstrap';
 import ProfileInner from './ProfileInner';
 import ProfileForm from './ProfileForm';
+import imgfile from '../../image/profile_default.png'
 
 
 function Profile(props) {
 
-  const [mode, setMode] = useState('READ');
+  let [mode, setMode] = useState('READ');
+  // const [postId, setPostId] = useState('')
+  // const [imageUrl, setImageUrl] = useState(imgfile);
+  // const [introduction, setIntroduction] = useState('');
   const [profileData, setProfileData] = useState([]);
   const [userData, setUserData] = useState([]);
 
   useEffect(()=>{
-    if (profileData.length === 0) {
-      if (props.currentUser === props.targetId) {
-        axios.get(url + `profile/${props.currentUser}`)
-        .then(response=>{
-          setProfileData(response.data.result[0]);
-          
-        }).catch((e)=>{
-          console.log(e)
-        })
-      } else {
-        axios.get(url + `profile/${props.targetId}`)
-        .then(response=>{
-          setProfileData(response.data.result[0]);
-          
-        }).catch((e)=>{
-          console.log(e)
-        })
-      }
+    if (props.currentUser === props.targetId) {
+      axios.get(url + `profile/${props.currentUser}`)
+      .then(response=>{
+        setProfileData(response.data.result[0])
+      }).catch((e)=>{
+        console.log(e)
+      })
+    } else {
+      axios.get(url + `profile/${props.targetId}`)
+      .then(response=>{
+        setProfileData(response.data.result[0])
+      }).catch((e)=>{
+        console.log(e)
+      })
     }
-  }, [props, profileData.length]);
+  }, [props]);
 
   useEffect(()=>{
     if (userData.length === 0) {
@@ -55,13 +55,20 @@ function Profile(props) {
       }
     }
   }, [props, userData.length])
-
+  
   const header = {
     headers: {
       Authorization: `Bearer ${props.accessToken}`
     }
   }
   
+  let imageUrl
+  if (profileData[2]) {
+    imageUrl = url + profileData[2];
+  } else {
+    imageUrl = imgfile;
+  }
+
   var innerTag
 
   if(mode === 'READ') {
@@ -70,11 +77,9 @@ function Profile(props) {
       userName={userData[0]}
       userEmail={userData[1]} 
       introduction={profileData[1]}
-      image={profileData[2]}
+      imageUrl={imageUrl}
       currentUser={props.currentUser}
-      changeProfileData={(data)=>{
-        setProfileData(data);
-      }} 
+      targetId={props.targetId}
       changeMode={(data)=>{
         setMode(data);
       }} 
@@ -82,15 +87,13 @@ function Profile(props) {
   } else if(mode === 'EDIT') {
     innerTag = 
     <ProfileForm
-      postId={profileData[0]}
-      userName={userData[0]}
-      userEmail={userData[1]}  
+      postId={profileData[0]} 
       introduction={profileData[1]}
-      image={profileData[2]}
-      header={header} 
+      imageUrl={imageUrl}
+      header={header}
       changeProfileData={(data)=>{
         setProfileData(data);
-      }} 
+      }}
       changeMode={(data)=>{
         setMode(data);
       }} 
@@ -98,14 +101,11 @@ function Profile(props) {
   }
 
   return (
-    <Card style={{ width: '25rem', height: '20rem' }}>
+    <Card style={{ width: '25rem' }}>
       <Card.Body>
         <Card.Title>Profile</Card.Title>
         <Card.Text>
-          {props.userName}
-        </Card.Text>
-        <Card.Text>
-          {props.userEmail}
+          {userData[0]}
         </Card.Text>
         {innerTag}
       </Card.Body>

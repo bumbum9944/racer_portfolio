@@ -17,7 +17,7 @@ function AwardInner(props) {
       <Button variant="danger" onClick={()=>{
         axios.delete(url + `award/post/${props.postId}`, props.header)
         .then(res=>{
-          props.changeProjectData(res.data.res);
+          props.changeAwardData(res.data.res);
         }).catch(err=>{
           console.log(err);
         });
