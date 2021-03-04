@@ -26,7 +26,9 @@ function ProfileForm(props) {
      
     }}>
       <Form.Group>
-        <img src={nowImage} style={{borderRadius: '70%', width: '60%', height='60%'}} alt="profile-img" />
+        <div style={{width: '15rem', height:'15rem'}}>
+          <img src={nowImage} style={{borderRadius: '70%', width: '100%', height:'100%'}} alt="profile-img" />
+        </div>
         <Form.File.Input name="profileImage" onChange={(e)=>{
           setImageFile(e.target.files[0])
         }} />
