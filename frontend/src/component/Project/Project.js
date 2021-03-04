@@ -119,7 +119,7 @@ function Project(props) {
   }
 
   return (
-    <Card style={{ width: '50rem' }}>
+    <Card style={{ width: '100%' }}>
         <Card.Body>
           <Card.Title>프로젝트</Card.Title>
           {innerTag}

@@ -96,7 +96,7 @@ function Award(props) {
   }
 
   return (
-    <Card style={{ width: '50rem' }}>
+    <Card style={{ width: '100%' }}>
         <Card.Body>
           <Card.Title>수상내역</Card.Title>
           {innerTag}

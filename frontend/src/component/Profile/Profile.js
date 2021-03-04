@@ -1,108 +1,115 @@
 import { React, useState, useEffect } from 'react';
 import url from '../../url/http';
 import axios from 'axios';
-import { Card, Button } from 'react-bootstrap';
-import AwardInner from './AwardInner';
-import AwardForm from './AwardForm';
+import { Card } from 'react-bootstrap';
+import ProfileInner from './ProfileInner';
+import ProfileForm from './ProfileForm';
 
 
 function Profile(props) {
 
-  var [mode, setMode] = useState('READ');
-  var [profileData, setProfileData] = useState([]);
+  const [mode, setMode] = useState('READ');
+  const [profileData, setProfileData] = useState([]);
+  const [userData, setUserData] = useState([]);
 
   useEffect(()=>{
-    if (awardData.length === 0) {
+    if (profileData.length === 0) {
       if (props.currentUser === props.targetId) {
-        axios.get(url + `award/${props.currentUser}`)
+        axios.get(url + `profile/${props.currentUser}`)
         .then(response=>{
-          setAwardData(response.data.result);
+          setProfileData(response.data.result[0]);
           
         }).catch((e)=>{
           console.log(e)
         })
       } else {
-        axios.get(url + `award/${props.targetId}`)
+        axios.get(url + `profile/${props.targetId}`)
         .then(response=>{
-          setAwardData(response.data.result);
+          setProfileData(response.data.result[0]);
           
         }).catch((e)=>{
           console.log(e)
         })
       }
     }
-  }, [props, awardData.length]);
+  }, [props, profileData.length]);
+
+  useEffect(()=>{
+    if (userData.length === 0) {
+      if (props.currentUser === props.targetId) {
+        axios.get(url + `account/${props.currentUser}`)
+        .then(response=>{
+          setUserData(response.data.result);
+          
+        }).catch((e)=>{
+          console.log(e)
+        })
+      } else {
+        axios.get(url + `account/${props.targetId}`)
+        .then(response=>{
+          setUserData(response.data.result);
+          
+        }).catch((e)=>{
+          console.log(e)
+        })
+      }
+    }
+  }, [props, userData.length])
 
   const header = {
     headers: {
       Authorization: `Bearer ${props.accessToken}`
     }
   }
-
-  var createForm = '';
   
-  var innerTag = awardData.map((data, index)=>
-    <AwardInner key={index} changeTargetIndex={(data)=>{
-      setTargetIndex(data);
-    }} changeAwardData={(data)=>{
-      setAwardData(data);
-    }} changeMode={(data)=>{
-      setMode(data);
-    }} index={index} postId={data[0]} name={data[1]}
-    description={data[2]} header={header} 
-    targetId={props.targetId}
-    currentUser={props.currentUser}
+  var innerTag
+
+  if(mode === 'READ') {
+    innerTag = <ProfileInner 
+      postId={profileData[0]}
+      userName={userData[0]}
+      userEmail={userData[1]} 
+      introduction={profileData[1]}
+      image={profileData[2]}
+      currentUser={props.currentUser}
+      changeProfileData={(data)=>{
+        setProfileData(data);
+      }} 
+      changeMode={(data)=>{
+        setMode(data);
+      }} 
     />
-  )
-
-  let buttonTag
-  if (props.currentUser === props.targetId) {
-    buttonTag = 
-    <div className="d-flex justify-content-end">
-      <Button variant="primary" onClick={function(){
-        if(mode === 'READ') {
-          setMode('CREATE');
-        } else {
-          setMode('READ');
-        }
-      }}>
-        추가
-      </Button>
-    </div>
-  } else {
-    buttonTag = <></>
-  }
-
-  if(mode === 'CREATE') {
-    createForm = <AwardForm formMode="제출" name="" description="" 
-    header={header}
-    changeAwardData={function(data) {
-      setAwardData(data)
-    }} changeMode={(data)=>{
-      setMode(data);
-    }} />
   } else if(mode === 'EDIT') {
-    createForm = <AwardForm formMode="저장"
-    postId = {awardData[targetIndex][0]} 
-    name={awardData[targetIndex][1]} 
-    description={awardData[targetIndex][2]}
-    header={header} 
-    changeAwardData={function(data) {
-      setAwardData(data)
-    }} changeMode={(data)=>{
-      setMode(data);
-    }} />
+    innerTag = 
+    <ProfileForm
+      postId={profileData[0]}
+      userName={userData[0]}
+      userEmail={userData[1]}  
+      introduction={profileData[1]}
+      image={profileData[2]}
+      header={header} 
+      changeProfileData={(data)=>{
+        setProfileData(data);
+      }} 
+      changeMode={(data)=>{
+        setMode(data);
+      }} 
+    />
   }
 
   return (
-    <Card style={{ width: '50rem' }}>
-        <Card.Body>
-          <Card.Title>수상내역</Card.Title>
-          {innerTag}
-          {createForm}
-          {buttonTag}
-        </Card.Body>
-      </Card>
+    <Card style={{ width: '25rem', height: '20rem' }}>
+      <Card.Body>
+        <Card.Title>Profile</Card.Title>
+        <Card.Text>
+          {props.userName}
+        </Card.Text>
+        <Card.Text>
+          {props.userEmail}
+        </Card.Text>
+        {innerTag}
+      </Card.Body>
+    </Card>
   );
 
 }

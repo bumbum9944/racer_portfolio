@@ -31,13 +31,13 @@ function Network(props) {
       </div>
     </div>
   } else {
-    for (let i=0; i < userData.length; i++) {
-      if (userData[i][0] !== props.currentUser) {
+    for (const user of userData) {
+      if (user[0] !== props.currentUser) {
         innerTag.push(<NetworkInner
-          key={i}
-          userId = {userData[i][0]}
-          name={userData[i][1]}
-          email={userData[i][2]} />)
+          key={user[1]}
+          userId = {user[0]}
+          name={user[1]}
+          email={user[2]} />)
       }
     }
   

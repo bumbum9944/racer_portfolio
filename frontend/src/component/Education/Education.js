@@ -99,7 +99,7 @@ function Education(props) {
   
   return (
     <div>
-      <Card style={{ width: '50rem' }}>
+      <Card style={{ width: '100%' }}>
         <Card.Body>
           <Card.Title>학력</Card.Title>
           {innerTag}

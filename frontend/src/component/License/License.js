@@ -125,7 +125,7 @@ function License(props) {
   }
 
   return (
-    <Card style={{ width: '50rem' }}>
+    <Card style={{ width: '100%' }}>
         <Card.Body>
           <Card.Title>자격증</Card.Title>
           {innerTag}

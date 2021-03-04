@@ -28,7 +28,7 @@ parser.add_argument("target")
 
 class Account(Resource):
 
-    def get(self):
+    def get(self, user_id=None):
         args = parser.parse_args()
 
         search_target = args["target"]
@@ -44,37 +44,46 @@ class Account(Resource):
 
         cursor = db.cursor()
 
-        if search_target == None or search_target == 'all':
+        if user_id==None:
+            if search_target == None or search_target == 'all':
 
-            sql = f'''
-                SELECT id, name, email
-                FROM user
-            '''
-
-            # sql = f'''
-            #     SELECT u.name, u.email
-            #     p.introduction, p.image 
-            #     FROM user AS u
-            #     INNER JOIN profile AS p
-            #     ON u.id=p.user;
-            # '''
-            cursor.execute(sql)
-            result = cursor.fetchall()
-        else:
-            if len(search_target) > 1:
                 sql = f'''
                     SELECT id, name, email
                     FROM user
-                    WHERE
-                    name LIKE '%{search_target}%';
                 '''
 
+                # sql = f'''
+                #     SELECT u.name, u.email
+                #     p.introduction, p.image 
+                #     FROM user AS u
+                #     INNER JOIN profile AS p
+                #     ON u.id=p.user;
+                # '''
                 cursor.execute(sql)
                 result = cursor.fetchall()
-                if len(result) == 0:
-                    result = 'nothing'
             else:
-                result = 'lack'
+                if len(search_target) > 1:
+                    sql = f'''
+                        SELECT id, name, email
+                        FROM user
+                        WHERE
+                        name LIKE '%{search_target}%';
+                    '''
+
+                    cursor.execute(sql)
+                    result = cursor.fetchall()
+                    if len(result) == 0:
+                        result = 'nothing'
+                else:
+                    result = 'lack'
+        else:
+            sql = f'''
+                    SELECT name, email
+                    FROM user
+                    WHERE id={user_id};
+                '''
+            cursor.execute(sql)
+            result = cursor.fetchone
 
         db.close()
 
@@ -140,7 +149,7 @@ class Account(Resource):
 
             return jsonify(status = "success", result = result) 
 
-api.add_resource(Account, '/account')
+api.add_resource(Account, '/account', '/account/<user_id>')
 
 parser.add_argument("degree")
 parser.add_argument("schoolName")
