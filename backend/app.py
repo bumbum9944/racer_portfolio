@@ -8,6 +8,7 @@ from werkzeug.datastructures import FileStorage
 from flask_cors import CORS
 import bcrypt
 from flask_jwt_extended import (JWTManager, jwt_required, create_access_token, get_jwt_identity)
+from oauth2client.contrib.flask_util import UserOAuth2
 from config import Config
 
 uploads_dir = os.path.join('./', 'static')
@@ -19,6 +20,15 @@ api = Api(app)
 #jwt 설정
 app.config['JWT_SECRET_KEY'] = Config.JWT_SECRET_KEY
 jwt = JWTManager(app)  
+
+# GOOGLE OAuth 설정
+
+app.config['SECRET_KEY'] = Config.GOOGLE_OAUTH_SECRET_KEY
+
+app.config['GOOGLE_OAUTH2_CLIENT_ID'] = GOOGLE_CLIENT_ID
+app.config['GOOGLE_OAUTH2_CLIENT_SECRET'] = GOOGLE_CLIENT_SECRET
+
+oauth2 = UserOAuth2(app)
 
 #cors 설정
 cors = CORS(app)
