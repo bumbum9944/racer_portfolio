@@ -3,7 +3,7 @@ import { Form, Button } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios';
-import url from '../url/http';
+import url from '../../url/http';
 
 function ProjectForm(props) {
 
@@ -15,7 +15,7 @@ function ProjectForm(props) {
       e.preventDefault();
       if(props.formMode === '제출') {
 
-        axios.post(url + 'post/project',{
+        axios.post(url + 'project/post',{
           name: e.target.name.value,
           description: e.target.description.value,
           startDate: startDate,
@@ -28,7 +28,7 @@ function ProjectForm(props) {
         });
       } else {
 
-        axios.put(url + `post/project/${props.postId}`,{
+        axios.put(url + `project/post/${props.postId}`,{
           name: e.target.name.value,
           description: e.target.description.value,
           startDate: startDate,

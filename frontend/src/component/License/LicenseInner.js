@@ -1,9 +1,31 @@
 import { React } from 'react';
 import { Card, Button } from 'react-bootstrap';
 import axios from 'axios';
-import url from '../url/http';
+import url from '../../url/http';
 
 function LicenseInner(props) {
+
+  let buttonTag
+  
+  if (props.currentUser === props.targetId) {
+    buttonTag = 
+    <div className="d-flex justify-content-end align-items-center" style={{width: '100%'}}>
+      <Button variant="primary" onClick={()=>{
+        props.changeTargetIndex(props.index);
+        props.changeMode('EDIT');
+      }}>수정</Button>
+      <Button variant="danger" onClick={()=>{
+        axios.delete(url + `license/post/${props.postId}`, props.header)
+        .then(res=>{
+          props.changeProjectData(res.data.res);
+        }).catch(err=>{
+          console.log(err);
+        });
+      }}>삭제</Button>
+    </div>
+  } else {
+    buttonTag = <></>
+  }
 
   function dateToYear(date) {
     var year = date.getFullYear();
@@ -37,20 +59,7 @@ function LicenseInner(props) {
             발급일 : {acquisitionDate}
           </Card.Text>
         </div>
-        <div className="d-flex justify-content-end align-items-center" style={{width: '100%'}}>
-          <Button variant="primary" onClick={()=>{
-            props.changeTargetIndex(props.index);
-            props.changeMode('EDIT');
-          }}>수정</Button>
-          <Button variant="danger" onClick={()=>{
-            axios.delete(url + `post/license/${props.postId}`, props.header)
-            .then(res=>{
-              props.changeLicenseData(res.data.res);
-            }).catch(err=>{
-              console.log(err);
-            });
-          }}>삭제</Button>
-        </div>
+        {buttonTag}
       </Card.Body>
     </Card>
   );

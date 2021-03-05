@@ -3,7 +3,7 @@ import { Form, Button } from 'react-bootstrap';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from 'axios';
-import url from '../url/http';
+import url from '../../url/http';
 
 function LicenseForm(props) {
 
@@ -14,7 +14,7 @@ function LicenseForm(props) {
       e.preventDefault();
       if(props.formMode === '제출') {
 
-        axios.post(url + 'post/license',{
+        axios.post(url + 'license/post',{
           name: e.target.name.value,
           issuer: e.target.issuer.value,
           acquisitionDate: startDate,
@@ -26,7 +26,7 @@ function LicenseForm(props) {
         });
       } else {
 
-        axios.put(url + `post/license/${props.postId}`,{
+        axios.put(url + `license/post/${props.postId}`,{
           name: e.target.name.value,
           issuer: e.target.issuer.value,
           acquisitionDate: startDate,

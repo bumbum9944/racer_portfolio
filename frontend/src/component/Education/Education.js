@@ -1,7 +1,7 @@
 import { React, useState, useEffect } from 'react';
 import { Card, Button } from 'react-bootstrap';
 import axios from 'axios';
-import url from '../url/http';
+import url from '../../url/http';
 import EducationInner from './EducationInner';
 import EducationForm from './EducationForm';
 
@@ -14,20 +14,26 @@ function Education(props) {
   let header
 
   useEffect(()=>{
-    if (props.accessToken) {
-      axios.get(url + 'post/education', {
-        headers: {
-          Authorization: `Bearer ${props.accessToken}`
-        }
-      })
-      .then(response=>{
-        setEduData(response.data.result);
-        
-      }).catch((e)=>{
-        console.log(e)
-      })
+    if (eduData.length === 0) {
+      if (props.currentUser === props.targetId) {
+        axios.get(url + `education/${props.currentUser}`)
+        .then(response=>{
+          setEduData(response.data.result);
+          
+        }).catch((e)=>{
+          console.log(e)
+        })
+      } else {
+        axios.get(url + `education/${props.targetId}`)
+        .then(response=>{
+          setEduData(response.data.result);
+          
+        }).catch((e)=>{
+          console.log(e)
+        })
+      }
     }
-  }, [props.accessToken]);
+  }, [props, eduData.length]);
 
   header = {
     headers: {
@@ -45,8 +51,29 @@ function Education(props) {
     }} changeMode={(data)=>{
       setMode(data);
     }} index={index} postId={data[0]} schoolName={data[2]}
-    major={data[3]} degree={data[1]} header={header} />
+    major={data[3]} degree={data[1]} header={header} 
+    targetId={props.targetId}
+    currentUser={props.currentUser}
+    />
   )
+
+  let buttonTag
+  if (props.currentUser === props.targetId) {
+    buttonTag = 
+    <div className="d-flex justify-content-end">
+      <Button variant="primary" onClick={function(){
+        if(mode === 'READ') {
+          setMode('CREATE');
+        } else {
+          setMode('READ');
+        }
+      }}>
+        추가
+      </Button>
+    </div>
+  } else {
+    buttonTag = <></>
+  }
 
   if(mode === 'CREATE') {
     createForm = <EducationForm formMode="제출" schoolName="" major="" checkedItem=""
@@ -72,22 +99,12 @@ function Education(props) {
   
   return (
     <div>
-      <Card style={{ width: '50rem' }}>
+      <Card style={{ width: '100%' }}>
         <Card.Body>
           <Card.Title>학력</Card.Title>
           {innerTag}
           {createForm}
-          <div className="d-flex justify-content-end">
-            <Button variant="primary" onClick={function(){
-              if(mode === 'READ') {
-                setMode('CREATE');
-              } else {
-                setMode('READ');
-              }
-            }}>
-                        추가
-            </Button>
-          </div>
+          {buttonTag}
         </Card.Body>
       </Card>
     </div>

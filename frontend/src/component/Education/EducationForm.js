@@ -1,7 +1,7 @@
 import { React, useState } from 'react';
 import { Form, Button } from 'react-bootstrap';
 import axios from 'axios';
-import url from '../url/http';
+import url from '../../url/http';
 
 function EducationForm(props) {
   var [checkedItem, setCheckedItem] = useState(props.checkedItem)
@@ -17,7 +17,7 @@ function EducationForm(props) {
       e.preventDefault();
       if(props.formMode === '제출') {
 
-        axios.post(url + 'post/education',{
+        axios.post(url + 'education/post',{
           schoolName: e.target.schoolName.value,
           major: e.target.major.value,
           degree: checkedItem
@@ -29,7 +29,7 @@ function EducationForm(props) {
         });
       } else {
 
-        axios.put(url + `post/education/${props.postId}`,{
+        axios.put(url + `education/post/${props.postId}`,{
           schoolName: e.target.schoolName.value,
           major: e.target.major.value,
           degree: checkedItem

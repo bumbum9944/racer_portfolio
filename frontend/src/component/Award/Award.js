@@ -1,5 +1,5 @@
 import { React, useState, useEffect } from 'react';
-import url from '../url/http';
+import url from '../../url/http';
 import axios from 'axios';
 import { Card, Button } from 'react-bootstrap';
 import AwardInner from './AwardInner';
@@ -13,20 +13,26 @@ function Award(props) {
   var [awardData, setAwardData] = useState([]);
 
   useEffect(()=>{
-    if (props.accessToken) {
-      axios.get(url + 'post/award', {
-        headers: {
-          Authorization: `Bearer ${props.accessToken}`
-        }
-      })
-      .then(response=>{
-        setAwardData(response.data.result);
-        
-      }).catch((e)=>{
-        console.log(e)
-      })
+    if (awardData.length === 0) {
+      if (props.currentUser === props.targetId) {
+        axios.get(url + `award/${props.currentUser}`)
+        .then(response=>{
+          setAwardData(response.data.result);
+          
+        }).catch((e)=>{
+          console.log(e)
+        })
+      } else {
+        axios.get(url + `award/${props.targetId}`)
+        .then(response=>{
+          setAwardData(response.data.result);
+          
+        }).catch((e)=>{
+          console.log(e)
+        })
+      }
     }
-  }, [props.accessToken]);
+  }, [props, awardData.length]);
 
   const header = {
     headers: {
@@ -44,8 +50,29 @@ function Award(props) {
     }} changeMode={(data)=>{
       setMode(data);
     }} index={index} postId={data[0]} name={data[1]}
-    description={data[2]} header={header} />
+    description={data[2]} header={header} 
+    targetId={props.targetId}
+    currentUser={props.currentUser}
+    />
   )
+
+  let buttonTag
+  if (props.currentUser === props.targetId) {
+    buttonTag = 
+    <div className="d-flex justify-content-end">
+      <Button variant="primary" onClick={function(){
+        if(mode === 'READ') {
+          setMode('CREATE');
+        } else {
+          setMode('READ');
+        }
+      }}>
+        추가
+      </Button>
+    </div>
+  } else {
+    buttonTag = <></>
+  }
 
   if(mode === 'CREATE') {
     createForm = <AwardForm formMode="제출" name="" description="" 
@@ -69,22 +96,12 @@ function Award(props) {
   }
 
   return (
-    <Card style={{ width: '50rem' }}>
+    <Card style={{ width: '100%' }}>
         <Card.Body>
           <Card.Title>수상내역</Card.Title>
           {innerTag}
           {createForm}
-          <div className="d-flex justify-content-end">
-            <Button variant="primary" onClick={function(){
-              if(mode === 'READ') {
-                setMode('CREATE');
-              } else {
-                setMode('READ');
-              }
-            }}>
-              추가
-            </Button>
-          </div>
+          {buttonTag}
         </Card.Body>
       </Card>
   );
