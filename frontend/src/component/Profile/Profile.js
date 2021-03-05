@@ -14,47 +14,61 @@ function Profile(props) {
   // const [imageUrl, setImageUrl] = useState(imgfile);
   // const [introduction, setIntroduction] = useState('');
   const [profileData, setProfileData] = useState([]);
-  const [userData, setUserData] = useState([]);
+  const [imageUrl, setImageUrl] = useState('');
+  // const [userData, setUserData] = useState([]);
 
+  
   useEffect(()=>{
-    if (props.currentUser === props.targetId) {
-      axios.get(url + `profile/${props.currentUser}`)
-      .then(response=>{
-        setProfileData(response.data.result[0])
-      }).catch((e)=>{
-        console.log(e)
-      })
-    } else {
-      axios.get(url + `profile/${props.targetId}`)
-      .then(response=>{
-        setProfileData(response.data.result[0])
-      }).catch((e)=>{
-        console.log(e)
-      })
-    }
-  }, [props]);
-
-  useEffect(()=>{
-    if (userData.length === 0) {
+    if (profileData.length === 0) {
       if (props.currentUser === props.targetId) {
-        axios.get(url + `account/${props.currentUser}`)
+        axios.get(url + `profile/${props.currentUser}`)
         .then(response=>{
-          setUserData(response.data.result);
-          
+          if (response.data.result[0][4] === 'null' || response.data.result[0][4] === null) {  
+            setImageUrl(imgfile);
+          } else {
+            setImageUrl(url + 'image/' + response.data.result[0][4]);
+          }
+          setProfileData(response.data.result[0])
         }).catch((e)=>{
           console.log(e)
         })
       } else {
-        axios.get(url + `account/${props.targetId}`)
+        axios.get(url + `profile/${props.targetId}`)
         .then(response=>{
-          setUserData(response.data.result);
-          
+          if (response.data.result[0][4] === 'null' || response.data.result[0][4] === null) {  
+            setImageUrl(imgfile);
+          } else {
+            setImageUrl(url + 'image/' + response.data.result[0][4]);
+          }
+          setProfileData(response.data.result[0])
         }).catch((e)=>{
           console.log(e)
         })
       }
     }
-  }, [props, userData.length])
+  }, [props, profileData.length]);
+
+  // useEffect(()=>{
+  //   if (userData.length === 0) {
+  //     if (props.currentUser === props.targetId) {
+  //       axios.get(url + `account/${props.currentUser}`)
+  //       .then(response=>{
+  //         setUserData(response.data.result);
+          
+  //       }).catch((e)=>{
+  //         console.log(e)
+  //       })
+  //     } else {
+  //       axios.get(url + `account/${props.targetId}`)
+  //       .then(response=>{
+  //         setUserData(response.data.result);
+          
+  //       }).catch((e)=>{
+  //         console.log(e)
+  //       })
+  //     }
+  //   }
+  // }, [props, userData.length])
   
   const header = {
     headers: {
@@ -62,21 +76,21 @@ function Profile(props) {
     }
   }
   
-  let imageUrl
-  if (profileData[2]) {
-    imageUrl = url + profileData[2];
-  } else {
-    imageUrl = imgfile;
-  }
+  // let imageUrl
+
+  // if (profileData[4] === 'null' || profileData[4] === null) {  
+  //   imageUrl = imgfile;
+  // } else {
+  //   imageUrl = url + 'image/' + profileData[4];
+  // }
 
   var innerTag
 
   if(mode === 'READ') {
     innerTag = <ProfileInner 
-      postId={profileData[0]}
-      userName={userData[0]}
-      userEmail={userData[1]} 
-      introduction={profileData[1]}
+      postId={profileData[2]} 
+      introduction={profileData[3]}
+      image={profileData[4]}
       imageUrl={imageUrl}
       currentUser={props.currentUser}
       targetId={props.targetId}
@@ -87,12 +101,18 @@ function Profile(props) {
   } else if(mode === 'EDIT') {
     innerTag = 
     <ProfileForm
-      postId={profileData[0]} 
-      introduction={profileData[1]}
+      postId={profileData[2]} 
+      introduction={profileData[3]}
+      image={profileData[4]}
       imageUrl={imageUrl}
       header={header}
       changeProfileData={(data)=>{
         setProfileData(data);
+        if (data[4] === 'null' || data[4] === null) {  
+          setImageUrl(imgfile);
+        } else {
+          setImageUrl(url + 'image/' + data[4]);
+        }
       }}
       changeMode={(data)=>{
         setMode(data);
@@ -105,7 +125,7 @@ function Profile(props) {
       <Card.Body>
         <Card.Title>Profile</Card.Title>
         <Card.Text>
-          {userData[0]}
+          {profileData[0]}
         </Card.Text>
         {innerTag}
       </Card.Body>

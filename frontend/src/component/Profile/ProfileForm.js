@@ -6,6 +6,7 @@ import profileImage from '../../image/profile_default.png'
 
 function ProfileForm(props) {
 
+  const [imageChangeMode, setImageChangeMode] = useState('keep')
   const [imageFile, setImageFile] = useState('');
   const [nowImage, setNowImage] = useState(props.imageUrl);
 
@@ -13,8 +14,10 @@ function ProfileForm(props) {
     <Form onSubmit={function(e) {
       e.preventDefault();
       const data = new FormData();
+      data.append('past_image', props.image)
+      data.append('profile_image_change_mode', imageChangeMode)
       data.append('profile_image', imageFile);
-      data.append('introduction', props.introduction);
+      data.append('introduction', e.target.introduction.value);
 
       axios.put(url + `profile/post/${props.postId}`, data, props.header)
       .then((res)=>{
@@ -31,13 +34,23 @@ function ProfileForm(props) {
         </div>
         <Form.File.Input name="profileImage" onChange={(e)=>{
           setImageFile(e.target.files[0])
+          setNowImage(URL.createObjectURL(e.target.files[0]));
+          setImageChangeMode('change')
         }} />
         <Button variant="primary" type="" onClick={()=>{
             setNowImage(profileImage);
-            setImageFile('');
+            setImageChangeMode('delete');
           }}
         >
-          사진삭제
+          기본이미지
+        </Button>
+        <Button variant="primary" type="" onClick={()=>{
+            setNowImage(props.imageUrl);
+            setImageFile('')
+            setImageChangeMode('keep');
+          }}
+        >
+          원래대로
         </Button>
       </Form.Group>
       <Form.Group>

@@ -1,6 +1,6 @@
 import os
 import datetime
-from flask import Flask, jsonify
+from flask import Flask, jsonify, redirect, send_from_directory
 from flask_restful import Resource, Api, reqparse
 import pymysql
 from werkzeug.utils import secure_filename
@@ -8,27 +8,26 @@ from werkzeug.datastructures import FileStorage
 from flask_cors import CORS
 import bcrypt
 from flask_jwt_extended import (JWTManager, jwt_required, create_access_token, get_jwt_identity)
-from oauth2client.contrib.flask_util import UserOAuth2
 from config import Config
 
-uploads_dir = os.path.join('./', 'static')
-os.makedirs(uploads_dir, exist_ok=True)
+UPLOAD_FOLDER = './static'
+ALLOWED_EXTENSIONS = set(['pdf', 'png', 'jpg', 'jpeg', 'gif'])
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-app = Flask(__name__, static_url_path='/static')
+
+app = Flask(__name__)
 api = Api(app)
+
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
 
 #jwt 설정
 app.config['JWT_SECRET_KEY'] = Config.JWT_SECRET_KEY
 jwt = JWTManager(app)  
-
-# GOOGLE OAuth 설정
-
-app.config['SECRET_KEY'] = Config.GOOGLE_OAUTH_SECRET_KEY
-
-app.config['GOOGLE_OAUTH2_CLIENT_ID'] = GOOGLE_CLIENT_ID
-app.config['GOOGLE_OAUTH2_CLIENT_SECRET'] = GOOGLE_CLIENT_SECRET
-
-oauth2 = UserOAuth2(app)
 
 #cors 설정
 cors = CORS(app)
@@ -40,6 +39,31 @@ parser.add_argument("name")
 parser.add_argument("target")
 
 
+parser.add_argument("code")
+
+
+class Google(Resource):
+    def get(self):
+        return redirect(f'https://accounts.google.com/o/oauth2/auth?client_id={Config.GOOGLE_CLIENT_ID}&redirect_url={Config.GOOGLE_REDIRECT_URL}')
+        
+
+    def post(self):
+        args = parser.parse_args()
+        print(args)
+        code = args['code']
+        url = 'https://www.googleapis.com/oauth2/token'
+        data = {
+            'code': code,
+            'client_id': Config.GOOGLE_CLIENT_ID,
+            'client_secret': Config.GOOGLE_CLIENT_SECRET,
+            'redirect_uri': Config.GOOGLE_REDIRECT_URL
+        }
+
+        return redirect(url, data)
+
+
+
+api.add_resource(Google, '/auth/google', '/auth/google/callback')
 
 class Account(Resource):
 
@@ -59,46 +83,35 @@ class Account(Resource):
 
         cursor = db.cursor()
 
-        if user_id==None:
-            if search_target == None or search_target == 'all':
+        if search_target == None or search_target == 'all':
 
+            sql = f'''
+                SELECT u.id, u.name, u.email, p.id, 
+                p.introduction, p.image 
+                FROM user AS u
+                INNER JOIN profile AS p
+                ON u.id=p.user;
+            '''
+            cursor.execute(sql)
+            result = cursor.fetchall()
+        else:
+            if len(search_target) > 1:
                 sql = f'''
-                    SELECT id, name, email
-                    FROM user
+                    SELECT u.id, u.name, u.email, p.id, 
+                    p.introduction, p.image 
+                    FROM user AS u
+                    INNER JOIN profile AS p
+                    ON u.id=p.user
+                    WHERE
+                    u.name LIKE '%{search_target}%';
                 '''
 
-                # sql = f'''
-                #     SELECT u.name, u.email
-                #     p.introduction, p.image 
-                #     FROM user AS u
-                #     INNER JOIN profile AS p
-                #     ON u.id=p.user;
-                # '''
                 cursor.execute(sql)
                 result = cursor.fetchall()
+                if len(result) == 0:
+                    result = 'nothing'
             else:
-                if len(search_target) > 1:
-                    sql = f'''
-                        SELECT id, name, email
-                        FROM user
-                        WHERE
-                        name LIKE '%{search_target}%';
-                    '''
-
-                    cursor.execute(sql)
-                    result = cursor.fetchall()
-                    if len(result) == 0:
-                        result = 'nothing'
-                else:
-                    result = 'lack'
-        else:
-            sql = f'''
-                    SELECT name, email
-                    FROM user
-                    WHERE id={user_id};
-                '''
-            cursor.execute(sql)
-            result = cursor.fetchone()
+                result = 'lack'
 
         db.close()
 
@@ -186,8 +199,9 @@ parser.add_argument("acquisitionDate")
 parser.add_argument("issuer")
 
 parser.add_argument("introduction")
+parser.add_argument("past_image")
+parser.add_argument("profile_image_change_mode")
 parser.add_argument("profile_image", type=FileStorage, location='files')
-
 
 class Post(Resource):
 
@@ -205,7 +219,17 @@ class Post(Resource):
 
         cursor = db.cursor()
 
-        sql=f'SELECT * FROM {category} WHERE user="{user_id}";'
+        if category == 'profile':
+            sql = f'''
+                SELECT u.name, u.email, p.id, 
+                p.introduction, p.image 
+                FROM user AS u
+                INNER JOIN profile AS p
+                ON u.id=p.user
+                WHERE u.id={user_id};
+            '''
+        else:
+            sql=f'SELECT * FROM {category} WHERE user="{user_id}";'
         cursor.execute(sql)
         
         result = cursor.fetchall()
@@ -260,22 +284,6 @@ class Post(Resource):
             '''
             acquisitionDate = args['acquisitionDate'].split('T')[0]
             cursor.execute(sql, (args['name'], args['issuer'], acquisitionDate, current_user_id, ))
-
-        elif category == 'profile':
-            profile = args['profile_image']
-            if profile:
-                nowDate = datetime.datetime.now()
-                file_name = secure_filename(nowDate.strftime('%Y-%m-%d %H%M%S') + profile.filename)
-                profile_path = os.path.join(uploads_dir, file_name)
-                profile.save(profile_path)
-            else:
-                profile_path=''
-
-            sql = f'''
-                INSERT INTO profile (introduction, image, user)
-                VALUES ('{args['introduction']}', '{profile_path}', {current_user_id});
-            '''
-            cursor.execute(sql)
         
         db.commit()
 
@@ -364,27 +372,53 @@ class Post(Resource):
                 WHERE id={post_id}
             '''
         elif category == 'profile':
+            # 이전 프로필 이미지 파일 삭제
+            past_image = args['past_image']
             profile = args['profile_image']
-            if profile:
-                nowDate = datetime.datetime.now()
-                file_name = secure_filename(nowDate.strftime('%Y-%m-%d %H%M%S') + profile.filename)
-                profile_path = os.path.join(uploads_dir+'/', file_name)
-                profile.save(profile_path)
-            else:
-                profile_path=''
+            profile_image_change_mode = args['profile_image_change_mode']
+            
 
-            sql = f'''
-                UPDATE {category}
-                SET
-                introduction='{args['introduction']}',
-                image='{profile_path}'
-                WHERE id={post_id};
-            '''
+            if profile_image_change_mode == 'keep':
+                sql = f'''
+                    UPDATE {category}
+                    SET
+                    introduction='{args['introduction']}'
+                    WHERE id={post_id};
+                '''
+            else:
+                if past_image != 'null':
+                    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], past_image))
+                
+                if profile_image_change_mode == 'delete':
+                    file_name='null'
+                else:
+                    if profile and allowed_file(profile.filename):
+                        nowDate = datetime.datetime.now()
+                        file_name = secure_filename(nowDate.strftime('%Y-%m-%d %H%M%S') + profile.filename)
+                        profile.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+
+                sql = f'''
+                    UPDATE {category}
+                    SET
+                    introduction='{args['introduction']}',
+                    image='{file_name}'
+                    WHERE id={post_id};
+                '''
 
         cursor.execute(sql)
         db.commit()
-
-        cursor.execute(f'SELECT * FROM {category} WHERE user="{current_user_id}";')
+        if category == "profile":
+            sql = f'''
+                SELECT u.name, u.email, p.id, 
+                p.introduction, p.image 
+                FROM user AS u
+                INNER JOIN profile AS p
+                ON u.id=p.user
+                WHERE u.id={current_user_id};
+            '''
+        else:
+            sql = f'SELECT * FROM {category} WHERE user="{current_user_id}";'
+        cursor.execute(sql)
         res = cursor.fetchall()
         db.close()
 
@@ -393,6 +427,10 @@ class Post(Resource):
         
 # api 라우팅 등록
 api.add_resource(Post, '/<category>/<user_id>/', '/<category>/post', '/<category>/post/<post_id>')
+
+@app.route('/image/<file_name>')
+def send_image(file_name):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], file_name)
 
 
 if __name__ == '__main__':

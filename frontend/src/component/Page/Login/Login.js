@@ -1,8 +1,9 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { Form, Button, Container } from 'react-bootstrap';
-import url from '../../../url/http';
 import axios from 'axios';
+import url from '../../../url/http';
+import googleLogin from '../../../image/btn_google_signin_light_normal_web.png'
 
 function Login(props) {
 
@@ -41,6 +42,18 @@ function Login(props) {
           로그인
         </Button>
       </Form>
+
+      <a href="/" onClick={(e)=>{
+        e.preventDefault();
+        axios.get('https://accounts.google.com/o/oauth2/auth?client_id=181746160743-776h0kr7q74n5at88a429j2iopioo852.apps.googleusercontent.com&redirect_url=http://localhost:5000/auth/google/callback')
+        .then(res=>{
+          console.log(res)
+        }).catch(err=>{
+          console.log(err)
+        })
+      }}>
+        <img src={googleLogin} alt="구글 로그인" />
+      </a>
     </Container>
   );
 }

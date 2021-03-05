@@ -59,6 +59,10 @@ function ProjectForm(props) {
           selectsStart
           startDate={startDate}
           endDate={endDate}
+          peekNextMonth
+          showMonthDropdown
+          showYearDropdown
+          dropdownMode="select"
         />
         <DatePicker
           dateFormat="yyyy-MM-dd"
@@ -68,6 +72,10 @@ function ProjectForm(props) {
           startDate={startDate}
           endDate={endDate}
           minDate={startDate}
+          peekNextMonth
+          showMonthDropdown
+          showYearDropdown
+          dropdownMode="select"
         />
       </div>
       <div className="d-flex justify-content-end">
