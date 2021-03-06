@@ -50,7 +50,7 @@ function LicenseForm(props) {
                 fontWeight: 'bold'
               }}
             >
-              수상내역
+              자격증명
             </Form.Label>
             <Form.Control type="text" name="name" 
               defaultValue={props.name} 

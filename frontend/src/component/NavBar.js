@@ -22,7 +22,7 @@ function NavBar(props) {
       </Nav.Link>
       <Nav.Link 
         onClick={()=>{
-          sessionStorage.removeItem('token');
+          sessionStorage.clear();
           props.setAccessToken(null);
           props.setCurrentUser(null);
           history.push('/');

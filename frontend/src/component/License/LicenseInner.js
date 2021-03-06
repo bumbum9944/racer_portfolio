@@ -71,7 +71,7 @@ function LicenseInner(props) {
               fontWeight: 'bold'
             }}
           >
-            {props.issuer}
+            발급기관 : {props.issuer}
           </Card.Text>
           <Card.Text
             style={{

@@ -4,6 +4,8 @@
 
 static/
 
+env/
+
 config.py
 
 ### Flask ###
