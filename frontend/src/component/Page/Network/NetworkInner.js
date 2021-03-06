@@ -1,6 +1,8 @@
 import React from 'react';
 import { Card, Button, Col } from 'react-bootstrap';
 import { useHistory } from 'react-router-dom';
+import { faHome} from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import url from '../../../url/http';
 import imgfile from '../../../image/profile_default.png'
 
@@ -29,9 +31,11 @@ function NetworkInner(props) {
           <Card.Text>
             {props.email}
           </Card.Text>
-          <Button variant="primary" onClick={()=>{
+          <Button variant="mute" onClick={()=>{
             history.push(`mypage/${props.userId}`)
-          }}>Go!</Button>
+          }}>
+            <FontAwesomeIcon icon={faHome} size='lg' />
+          </Button>
         </Card.Body>
       </Card>
     </Col>

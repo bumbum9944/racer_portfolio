@@ -101,7 +101,10 @@ function Education(props) {
     <div>
       <Card style={{ width: '100%' }}>
         <Card.Body>
-          <Card.Title>학력</Card.Title>
+          <Card.Title className="portfolio-title" style={{
+          fontFamily: 'Noto Sans KR, sans-serif',
+          fontSize: '250%'
+      }}>Education</Card.Title>
           {innerTag}
           {createForm}
           {buttonTag}

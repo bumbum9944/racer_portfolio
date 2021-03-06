@@ -11,6 +11,28 @@ function ProfileForm(props) {
   const [nowImage, setNowImage] = useState(props.imageUrl);
 
   return(
+    <>
+    {/* <Card key={props.index} className="mb-2" >
+      <Card.Title
+        className="mt-3 ml-4" 
+        style={{
+          height: '2rem',
+          fontFamily: 'Single Day, cursive',
+          fontSize: '120%'
+        }}
+      >
+        {props.userName}'s <FontAwesomeIcon icon={faHome} />
+      </Card.Title>
+      <Card.Body className="d-flex flex-column align-items-center">
+        {profileImage}
+        <Card.Text className="my-5 d-flex justify-content-center" style={{width: '90%', fontFamily: 'Noto Sans KR, sans-serif', fontSize: '130%', fontWeight: 'bold'}}>
+          {props.introduction}
+        </Card.Text>
+        {buttonTag}
+      </Card.Body>
+    </Card> */}
+    
+    
     <Form onSubmit={function(e) {
       e.preventDefault();
       const data = new FormData();
@@ -66,6 +88,7 @@ function ProfileForm(props) {
         취소
       </Button>
     </Form>
+    </>
   );
 
 }

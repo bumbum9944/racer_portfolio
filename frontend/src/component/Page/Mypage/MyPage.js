@@ -4,7 +4,7 @@ import Portfolio from './Portfolio'
 function MyPage(props) {
 
   return (
-    <div className="">
+    <div className="" style={{height: "100%"}} >
       <Portfolio targetId={Number(props.targetId)} accessToken={props.accessToken} currentUser={props.currentUser} />
     </div>
   );

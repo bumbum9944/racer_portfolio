@@ -21,25 +21,44 @@ function NavBar(props) {
     </>
   } else {
     innerTag = <>
-      <Nav.Link onClick={()=>{
-      history.push('/login');
+      <Nav.Link 
+      style={{
+        fontFamily: 'Sunflower, sans-serif',
+        fontSize: '150%'
+      }}
+
+      onClick={()=>{
+        history.push('/login');
       }}>
-        로그인
+        Login
       </Nav.Link>
-      <Nav.Link onClick={()=>{
-      history.push('/signup');
+      <Nav.Link 
+      style={{
+        fontFamily: 'Sunflower, sans-serif',
+        fontSize: '150%'
+      }}
+      onClick={()=>{
+        history.push('/signup');
       }}>
-        회원가입
+        Sign-up
       </Nav.Link>
     </>
   }
   return (
     <Navbar sticky="top" bg="light" expand="lg">
-      <Navbar.Brand>Portfolio</Navbar.Brand>
+      <Navbar.Brand style={{
+        fontFamily: 'Sunflower, sans-serif',
+        fontSize: '200%'
+    }}>Portfolio</Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="mr-auto">
-          <Nav.Link onClick={()=>{
+          <Nav.Link 
+          style={{
+            fontFamily: 'Sunflower, sans-serif',
+            fontSize: '150%'
+          }}
+          onClick={()=>{
             history.push('/');
           }}>
             Home
