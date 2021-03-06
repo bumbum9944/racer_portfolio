@@ -14,7 +14,7 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
   
   return (
-    <div className="App">
+    <div className="App" style={{height: "100%"}} >
       <NavBar
         currentUser={currentUser}
         accessToken={accessToken} 
@@ -24,7 +24,7 @@ function App() {
           setCurrentUser(data)
         }} 
       />
-      <div>
+      <div style={{height: "100%"}} >
         <Route path="/mypage/:id" render={(props)=> <MyPage targetId={props.match.params.id} currentUser={currentUser} accessToken={accessToken} />} />
         <Route path="/login" render={()=> <Login 
           setAccessToken={(data)=>{

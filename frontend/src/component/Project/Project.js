@@ -121,7 +121,10 @@ function Project(props) {
   return (
     <Card style={{ width: '100%' }}>
         <Card.Body>
-          <Card.Title>프로젝트</Card.Title>
+          <Card.Title className="portfolio-title" style={{
+          fontFamily: 'Noto Sans KR, sans-serif',
+          fontSize: '250%'
+      }}>Project</Card.Title>
           {innerTag}
           {createForm}
           {buttonTag}

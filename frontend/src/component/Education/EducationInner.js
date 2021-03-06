@@ -2,6 +2,8 @@ import { React } from 'react';
 import { Card, Button } from 'react-bootstrap';
 import axios from 'axios';
 import url from '../../url/http';
+import { faPen, faTrashAlt} from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 function EducationInner(props) {
 
@@ -9,19 +11,23 @@ function EducationInner(props) {
   
   if (props.currentUser === props.targetId) {
     buttonTag = 
-    <div className="d-flex justify-content-end align-items-center" style={{width: '100%'}}>
-      <Button variant="primary" onClick={()=>{
+    <div className="d-flex justify-content-end align-items-end" style={{width: '100%'}}>
+      <Button variant="" onClick={()=>{
         props.changeTargetIndex(props.index);
         props.changeMode('EDIT');
-      }}>수정</Button>
-      <Button variant="danger" onClick={()=>{
+      }}>
+        <FontAwesomeIcon icon={faPen} size='lg' />
+      </Button>
+      <Button variant="" onClick={()=>{
         axios.delete(url + `education/post/${props.postId}`, props.header)
         .then(res=>{
           props.changeProjectData(res.data.res);
         }).catch(err=>{
           console.log(err);
         });
-      }}>삭제</Button>
+      }}>
+        <FontAwesomeIcon icon={faTrashAlt} size='lg' />
+      </Button>
     </div>
   } else {
     buttonTag = <></>

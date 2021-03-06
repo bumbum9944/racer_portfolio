@@ -1,5 +1,7 @@
 import { React } from 'react';
 import { Card, Button } from 'react-bootstrap';
+import { faHome} from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 function ProfileInner(props) {
 
@@ -17,16 +19,26 @@ function ProfileInner(props) {
   }
 
   let profileImage = 
-    <div style={{width: '15rem', height:'15rem'}}>
+    <div className="d-flex justify-content-center align-items-center" style={{width: '15rem', height:'15rem'}}>
       <img src={props.imageUrl} style={{borderRadius: '70%', width: '100%', height:'100%'}} alt="profile-img" />
     </div>
 
   return(
     <Card key={props.index} className="mb-2" >
-      <Card.Body className="">
+      <Card.Title
+        className="mt-3 ml-4" 
+        style={{
+          height: '2rem',
+          fontFamily: 'Single Day, cursive',
+          fontSize: '120%'
+        }}
+      >
+        {props.userName}'s <FontAwesomeIcon icon={faHome} />
+      </Card.Title>
+      <Card.Body className="d-flex flex-column align-items-center">
         {profileImage}
-        <Card.Text>
-          소개 : {props.introduction}
+        <Card.Text className="my-5 d-flex justify-content-center" style={{width: '90%', fontFamily: 'Noto Sans KR, sans-serif', fontSize: '130%', fontWeight: 'bold'}}>
+          {props.introduction}
         </Card.Text>
         {buttonTag}
       </Card.Body>

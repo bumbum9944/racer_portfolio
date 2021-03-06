@@ -7,6 +7,7 @@ import ProfileForm from './ProfileForm';
 import imgfile from '../../image/profile_default.png'
 
 
+
 function Profile(props) {
 
   let [mode, setMode] = useState('READ');
@@ -88,7 +89,8 @@ function Profile(props) {
 
   if(mode === 'READ') {
     innerTag = <ProfileInner 
-      postId={profileData[2]} 
+      postId={profileData[2]}
+      userName={profileData[0]} 
       introduction={profileData[3]}
       image={profileData[4]}
       imageUrl={imageUrl}
@@ -121,12 +123,12 @@ function Profile(props) {
   }
 
   return (
-    <Card style={{ width: '25rem' }}>
+    <Card style={{ width: '25rem', height: '100%' }}>
       <Card.Body>
-        <Card.Title>Profile</Card.Title>
-        <Card.Text>
-          {profileData[0]}
-        </Card.Text>
+        <Card.Title className="portfolio-title" style={{
+          fontFamily: 'Noto Sans KR, sans-serif',
+          fontSize: '250%'
+      }}>Profile</Card.Title>
         {innerTag}
       </Card.Body>
     </Card>

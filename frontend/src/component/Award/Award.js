@@ -98,7 +98,10 @@ function Award(props) {
   return (
     <Card style={{ width: '100%' }}>
         <Card.Body>
-          <Card.Title>수상내역</Card.Title>
+          <Card.Title className="portfolio-title" style={{
+          fontFamily: 'Noto Sans KR, sans-serif',
+          fontSize: '250%'
+      }}>Award</Card.Title>
           {innerTag}
           {createForm}
           {buttonTag}
