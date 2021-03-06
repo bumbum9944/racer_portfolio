@@ -53,6 +53,10 @@ function LicenseForm(props) {
           dateFormat="yyyy-MM-dd"
           selected={startDate}
           onChange={date => setStartDate(date)}
+          peekNextMonth
+          showMonthDropdown
+          showYearDropdown
+          dropdownMode="select"
         />
       </div>
       <div className="d-flex justify-content-end">

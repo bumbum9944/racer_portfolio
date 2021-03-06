@@ -34,14 +34,16 @@ function Network(props) {
     for (const user of userData) {
       if (user[0] !== props.currentUser) {
         innerTag.push(<NetworkInner
-          key={user[1]}
+          key={user[2]}
           userId = {user[0]}
           name={user[1]}
-          email={user[2]} />)
+          email={user[2]} 
+          introduction={user[4]} 
+          image={user[5]} 
+          />)
       }
     }
-  
-    if (innerTag.length % 2 === 1) {
+    if (innerTag.length % 3 === 1) {
       innerTag.push(<Col key={userData.length} col="4"></Col>)
       innerTag.push(<Col key={userData.length + 1} col="4"></Col>)
     } else if (innerTag.length % 3 === 2) {

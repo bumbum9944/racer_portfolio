@@ -1,4 +1,4 @@
-import { React} from 'react';
+import { React } from 'react';
 import { Card, Button } from 'react-bootstrap';
 
 function ProfileInner(props) {
@@ -17,9 +17,9 @@ function ProfileInner(props) {
   }
 
   let profileImage = 
-                    <div style={{width: '15rem', height:'15rem'}}>
-                      <img src={props.imageUrl} style={{borderRadius: '70%', width: '100%', height:'100%'}} alt="profile-img" />
-                    </div>
+    <div style={{width: '15rem', height:'15rem'}}>
+      <img src={props.imageUrl} style={{borderRadius: '70%', width: '100%', height:'100%'}} alt="profile-img" />
+    </div>
 
   return(
     <Card key={props.index} className="mb-2" >
