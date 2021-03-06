@@ -31,15 +31,49 @@ function Login(props) {
         }
       }>
         <Form.Group controlId="formBasicEmail">
-          <Form.Label>Email</Form.Label>
-          <Form.Control name="email" type="email" placeholder="Enter email" />
+          <Form.Label 
+            style={{  
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '110%', 
+              fontWeight: 'bold'
+            }}
+          >
+            Email
+          </Form.Label>
+          <Form.Control name="email" type="email" placeholder="Enter email" 
+            style={{  
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '110%', 
+              fontWeight: 'bold'
+            }}
+          />
         </Form.Group>
         <Form.Group controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control name="password" type="password" placeholder="Password" />
+          <Form.Label
+            style={{  
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '110%', 
+              fontWeight: 'bold'
+            }}
+          >
+            Password
+          </Form.Label>
+          <Form.Control name="password" type="password" placeholder="Password" 
+            style={{  
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '110%', 
+              fontWeight: 'bold'
+            }}
+          />
         </Form.Group>
-        <Button variant="primary" type="submit">
-          로그인
+        <Button variant="primary" type="submit"
+          style={{  
+            fontFamily: 'Noto Sans KR, sans-serif', 
+            fontSize: '110%', 
+            fontWeight: 'bold'
+          }}
+        >
+          Submit
         </Button>
       </Form>
 

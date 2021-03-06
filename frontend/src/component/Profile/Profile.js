@@ -11,12 +11,8 @@ import imgfile from '../../image/profile_default.png'
 function Profile(props) {
 
   let [mode, setMode] = useState('READ');
-  // const [postId, setPostId] = useState('')
-  // const [imageUrl, setImageUrl] = useState(imgfile);
-  // const [introduction, setIntroduction] = useState('');
   const [profileData, setProfileData] = useState([]);
   const [imageUrl, setImageUrl] = useState('');
-  // const [userData, setUserData] = useState([]);
 
   
   useEffect(()=>{
@@ -48,42 +44,12 @@ function Profile(props) {
       }
     }
   }, [props, profileData.length]);
-
-  // useEffect(()=>{
-  //   if (userData.length === 0) {
-  //     if (props.currentUser === props.targetId) {
-  //       axios.get(url + `account/${props.currentUser}`)
-  //       .then(response=>{
-  //         setUserData(response.data.result);
-          
-  //       }).catch((e)=>{
-  //         console.log(e)
-  //       })
-  //     } else {
-  //       axios.get(url + `account/${props.targetId}`)
-  //       .then(response=>{
-  //         setUserData(response.data.result);
-          
-  //       }).catch((e)=>{
-  //         console.log(e)
-  //       })
-  //     }
-  //   }
-  // }, [props, userData.length])
   
   const header = {
     headers: {
       Authorization: `Bearer ${props.accessToken}`
     }
   }
-  
-  // let imageUrl
-
-  // if (profileData[4] === 'null' || profileData[4] === null) {  
-  //   imageUrl = imgfile;
-  // } else {
-  //   imageUrl = url + 'image/' + profileData[4];
-  // }
 
   var innerTag
 
@@ -103,7 +69,8 @@ function Profile(props) {
   } else if(mode === 'EDIT') {
     innerTag = 
     <ProfileForm
-      postId={profileData[2]} 
+      postId={profileData[2]}
+      userName={profileData[0]} 
       introduction={profileData[3]}
       image={profileData[4]}
       imageUrl={imageUrl}

@@ -84,15 +84,17 @@ function License(props) {
   let buttonTag
   if (props.currentUser === props.targetId) {
     buttonTag = 
-    <div className="d-flex justify-content-end">
-      <Button variant="primary" onClick={function(){
-        if(mode === 'READ') {
+    <div className="d-flex justify-content-center">
+      <Button variant="secondary" 
+        onClick={function(){
           setMode('CREATE');
-        } else {
-          setMode('READ');
-        }
-      }}>
-        추가
+        }}
+        style={{
+          fontSize: "110",
+          fontWeight: 'bold'
+        }}
+      >
+        +
       </Button>
     </div>
   } else {
@@ -101,7 +103,7 @@ function License(props) {
 
   let now = dateToYear(new Date());
   if(mode === 'CREATE') {
-    createForm = <LicenseForm formMode="제출" name="" 
+    createForm = <LicenseForm formMode="Submit" name="" 
     issuer=""
     acquisitionDate={now}
     header={header} 
@@ -111,7 +113,7 @@ function License(props) {
       setMode(data);
     }} />
   } else if(mode === 'EDIT') {
-    createForm = <LicenseForm formMode="저장"
+    createForm = <LicenseForm formMode="Save"
     postId = {licenseData[targetIndex][0]} 
     name={licenseData[targetIndex][1]} 
     issuer={licenseData[targetIndex][2]}
@@ -125,7 +127,7 @@ function License(props) {
   }
 
   return (
-    <Card style={{ width: '100%' }}>
+    <Card className="my-4" style={{ width: '100%' }}>
         <Card.Body>
           <Card.Title className="portfolio-title" style={{
           fontFamily: 'Noto Sans KR, sans-serif',

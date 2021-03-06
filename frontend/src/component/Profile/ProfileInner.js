@@ -10,9 +10,18 @@ function ProfileInner(props) {
   if (props.currentUser === props.targetId) {
     buttonTag = 
     <div className="d-flex justify-content-end align-items-center" style={{width: '100%'}}>
-      <Button variant="primary" onClick={()=>{
-        props.changeMode('EDIT');
-      }}>수정</Button>
+      <Button variant="secondary" 
+        onClick={()=>{
+          props.changeMode('EDIT');
+        }}
+        style={{
+          fontFamily: 'Noto Sans KR, sans-serif',
+          fontSize: '110%',
+          fontWeight: 'bold'
+        }}
+      >
+        Edit
+      </Button>
     </div>
   } else {
     buttonTag = <></>
@@ -24,20 +33,32 @@ function ProfileInner(props) {
     </div>
 
   return(
-    <Card key={props.index} className="mb-2" >
+    <Card key={props.index} className="mb-2"
+      style={{
+        height: '35rem',
+      }}
+    >
       <Card.Title
         className="mt-3 ml-4" 
         style={{
           height: '2rem',
-          fontFamily: 'Single Day, cursive',
-          fontSize: '120%'
+          fontFamily: 'Noto Sans KR, sans-serif',
+          fontSize: '120%',
+          fontWeight: 'bold'
         }}
       >
         {props.userName}'s <FontAwesomeIcon icon={faHome} />
       </Card.Title>
       <Card.Body className="d-flex flex-column align-items-center">
         {profileImage}
-        <Card.Text className="my-5 d-flex justify-content-center" style={{width: '90%', fontFamily: 'Noto Sans KR, sans-serif', fontSize: '130%', fontWeight: 'bold'}}>
+        <Card.Text className="my-5 d-flex justify-content-center" 
+          style={{
+              width: '90%', 
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '130%', 
+              fontWeight: 'bold'
+            }}
+          >
           {props.introduction}
         </Card.Text>
         {buttonTag}

@@ -32,33 +32,80 @@ function Signup(props) {
         }
       }>
         <Form.Group>
-          <Form.Label>Name</Form.Label>
+          <Form.Label
+            style={{  
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '110%', 
+              fontWeight: 'bold'
+            }}
+          >
+            Name
+          </Form.Label>
           <Form.Control name="name" type="text" placeholder="이름을 입력해주세요"
             onChange={function(e) {
               setName(e.target.value);
+            }}
+            style={{  
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '110%', 
+              fontWeight: 'bold'
             }} 
           />
         </Form.Group>
         <Form.Group controlId="formBasicEmail">
-          <Form.Label>Email</Form.Label>
+          <Form.Label
+            style={{  
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '110%', 
+              fontWeight: 'bold'
+            }}
+          >
+            Email
+          </Form.Label>
           <Form.Control name="email" type="email" placeholder="Enter email" 
             onChange={function(e) {
               setEmail(e.target.value);
             }} 
+            style={{  
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '110%', 
+              fontWeight: 'bold'
+            }}
           />
         </Form.Group>
         <Form.Group controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
+          <Form.Label
+            style={{  
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '110%', 
+              fontWeight: 'bold'
+            }}
+          >
+            Password
+          </Form.Label>
           <Form.Control name="password" type="password" placeholder="Password" 
             onChange={
               function(e) {
                 setPassword(e.target.value);
               }
             }
+            style={{  
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '110%', 
+              fontWeight: 'bold'
+            }}
           />
         </Form.Group>
         <Form.Group>
-          <Form.Label>Password</Form.Label>
+          <Form.Label
+            style={{  
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '110%', 
+              fontWeight: 'bold'
+            }}
+          >
+            Password
+          </Form.Label>
           <Form.Control name="passwordCheck" type="password" placeholder="Password" 
             onChange={
               function(e) {
@@ -70,11 +117,22 @@ function Signup(props) {
                 }
               }            
             }
+            style={{  
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '110%', 
+              fontWeight: 'bold'
+            }}
           />
         </Form.Group>
         <p>{error}</p>
-        <Button variant="primary" type="submit">
-          submit
+        <Button variant="primary" type="submit"
+          style={{  
+            fontFamily: 'Noto Sans KR, sans-serif', 
+            fontSize: '110%', 
+            fontWeight: 'bold'
+          }}
+        >
+          Submit
         </Button>
       </Form>
     </Container>
