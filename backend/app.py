@@ -1,6 +1,6 @@
 import os
 import datetime
-from flask import Flask, jsonify, redirect, send_from_directory, url_for
+from flask import Flask, jsonify, send_from_directory
 from flask_restful import Resource, Api, reqparse
 import pymysql
 from werkzeug.utils import secure_filename
@@ -13,7 +13,6 @@ from config import Config
 UPLOAD_FOLDER = './static'
 ALLOWED_EXTENSIONS = set(['pdf', 'png', 'jpg', 'jpeg', 'gif'])
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 
 app = Flask(__name__)
 api = Api(app)
@@ -67,7 +66,7 @@ def google_login():
     cursor.execute(sql)
     result = cursor.fetchone()
     # 유저가 없으면 회원 가입 진행
-    if result == None:
+    if result is None:
         sql = f'''
          INSERT INTO user(name, email, password)
          VALUES("{user_name}", "{google_id}", "{google_id}");
@@ -90,7 +89,6 @@ def google_login():
         cursor.execute(sql)
         db.commit()
 
-        print('!!!!!!!!!!!!!!!', result)
     db.close()
 
     access_token = create_access_token(identity=result[0])
@@ -120,7 +118,7 @@ class Account(Resource):
 
         cursor = db.cursor()
 
-        if search_target == None or search_target == 'all':
+        if search_target is None or search_target == 'all':
 
             sql = f'''
                 SELECT u.id, u.name, u.email, p.id, 
@@ -171,7 +169,7 @@ class Account(Resource):
 
 
         # 이름이 없으면 로그인
-        if args['name'] == None:
+        if args['name'] is None:
 
             sql = "SELECT id, password FROM user WHERE email=%s;"
 
@@ -179,7 +177,7 @@ class Account(Resource):
             res = cursor.fetchone()
             db.close()
             # 유저가 존재하지 않을 경우
-            if res == None:
+            if res is None:
                 return jsonify(status="success", result="존재하지 않는 유저입니다.")
 
             # 비밀번호 체크
@@ -481,4 +479,4 @@ def send_image(file_name):
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, threaded=False)
