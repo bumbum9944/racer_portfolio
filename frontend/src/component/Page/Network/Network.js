@@ -27,7 +27,14 @@ function Network(props) {
     <div style={{width: '100%'}}>
       <div className="d-flex flex-column align-items-center">
         <img src={imgfile} alt="catNotFind" />
-        <p>결과가 없습니다. ㅠㅠ</p>
+        <p style={{
+                fontFamily: 'Noto Sans KR, sans-serif',
+                fontSize: '150%',
+                fontWeight: 'bold'
+              }}
+        >
+          결과가 없습니다. ㅠㅠ
+        </p>
       </div>
     </div>
   } else {
@@ -76,19 +83,47 @@ function Network(props) {
             })
           }}
         >
-          <Form.Control name="searchItem" value={searchValue} onChange={(e)=>{
-            setSearchValue(e.target.value);
-          }} style={{ width: '50%' }} type="text" placeholder="Search" className="" />
-          <Button className="ml-1" type="submit" variant="outline-success">Search</Button>
-          <Button className="ml-1" variant="outline-primary" onClick={()=>{
-            setSearchValue('');
-            axios.get(url + 'account')
-            .then((res)=>{
-              setUserData(res.data.result);
-            }).catch((err)=>{
-              console.log(err);
-            });
-          }}>Reset</Button>
+          <Form.Control name="searchItem" value={searchValue} 
+            onChange={(e)=>{
+              setSearchValue(e.target.value);
+            }} 
+            style={{ 
+              width: '50%', 
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '110%', 
+              fontWeight: 'bold'
+            }} 
+            type="text" 
+            placeholder="Search" 
+            className="" 
+          />
+          <Button className="ml-1" type="submit" variant="outline-success"
+            style={{  
+              fontFamily: 'Noto Sans KR, sans-serif', 
+              fontSize: '110%', 
+              fontWeight: 'bold'
+            }}
+          >
+            Search
+          </Button>
+          <Button className="ml-1" variant="outline-primary" 
+            onClick={()=>{
+              setSearchValue('');
+              axios.get(url + 'account')
+              .then((res)=>{
+                setUserData(res.data.result);
+              }).catch((err)=>{
+                console.log(err);
+              });
+            }}
+          style={{  
+            fontFamily: 'Noto Sans KR, sans-serif', 
+            fontSize: '110%', 
+            fontWeight: 'bold'
+          }}
+          >
+            Reset
+          </Button>
         </Form>
         <Row>
           {innerTag}

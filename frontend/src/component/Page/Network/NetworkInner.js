@@ -16,7 +16,14 @@ function NetworkInner(props) {
     nowImage = imgfile;
   } else {
     nowImage = url + 'image/' + props.image
-  } 
+  }
+
+  let introductionTag;
+  if (props.introduction) {
+    introductionTag = props.introduction
+  } else {
+    introductionTag = "아직 소개 글이 없어요..."
+  }
   
   let imgTag = 
   <Card.Body className="d-flex justify-content-center">
@@ -27,9 +34,23 @@ function NetworkInner(props) {
       <Card className="d-flex flex-column align-items-center" style={{ width: '18rem' }}>
         {imgTag}
         <Card.Body className="d-flex flex-column align-items-center">
-          <Card.Title>{props.name}</Card.Title>
-          <Card.Text>
-            {props.email}
+          <Card.Title 
+            style={{
+              fontFamily: 'Noto Sans KR, sans-serif',
+              fontSize: '110%',
+              fontWeight: 'bold'
+            }}
+          >
+            {props.name}
+          </Card.Title>
+          <Card.Text
+            style={{
+              fontFamily: 'Noto Sans KR, sans-serif',
+              fontSize: '110%',
+              fontWeight: 'bold'
+            }}
+          >
+            {introductionTag}
           </Card.Text>
           <Button variant="mute" onClick={()=>{
             history.push(`mypage/${props.userId}`)

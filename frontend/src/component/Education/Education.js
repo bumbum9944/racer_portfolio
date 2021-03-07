@@ -60,15 +60,17 @@ function Education(props) {
   let buttonTag
   if (props.currentUser === props.targetId) {
     buttonTag = 
-    <div className="d-flex justify-content-end">
-      <Button variant="primary" onClick={function(){
-        if(mode === 'READ') {
+    <div className="d-flex justify-content-center">
+      <Button variant="secondary" 
+        onClick={function(){
           setMode('CREATE');
-        } else {
-          setMode('READ');
-        }
-      }}>
-        추가
+        }}
+        style={{
+          fontSize: "110",
+          fontWeight: 'bold'
+        }}
+      >
+        +
       </Button>
     </div>
   } else {
@@ -76,7 +78,7 @@ function Education(props) {
   }
 
   if(mode === 'CREATE') {
-    createForm = <EducationForm formMode="제출" schoolName="" major="" checkedItem=""
+    createForm = <EducationForm formMode="Submit" schoolName="" major="" checkedItem=""
     header={header}
     changeEduData={function(data) {
       setEduData(data)
@@ -84,7 +86,7 @@ function Education(props) {
       setMode(data);
     }} />
   } else if(mode === 'EDIT') {
-    createForm = <EducationForm formMode="저장"
+    createForm = <EducationForm formMode="Save"
     postId = {eduData[targetIndex][0]} 
     schoolName={eduData[targetIndex][2]} 
     major={eduData[targetIndex][3]} 
@@ -99,7 +101,7 @@ function Education(props) {
   
   return (
     <div>
-      <Card style={{ width: '100%' }}>
+      <Card className="my-4" style={{ width: '100%' }}>
         <Card.Body>
           <Card.Title className="portfolio-title" style={{
           fontFamily: 'Noto Sans KR, sans-serif',

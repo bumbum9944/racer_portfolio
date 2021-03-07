@@ -11,7 +11,7 @@ function EducationInner(props) {
   
   if (props.currentUser === props.targetId) {
     buttonTag = 
-    <div className="d-flex justify-content-end align-items-end" style={{width: '100%'}}>
+    <div className="d-flex justify-content-end align-items-center" style={{width: '100%'}}>
       <Button variant="" onClick={()=>{
         props.changeTargetIndex(props.index);
         props.changeMode('EDIT');
@@ -21,7 +21,7 @@ function EducationInner(props) {
       <Button variant="" onClick={()=>{
         axios.delete(url + `education/post/${props.postId}`, props.header)
         .then(res=>{
-          props.changeProjectData(res.data.res);
+          props.changeEduData(res.data.res);
         }).catch(err=>{
           console.log(err);
         });
@@ -37,14 +37,32 @@ function EducationInner(props) {
     <Card key={props.index} className="mb-2" >
       <Card.Body className="d-flex">
         <div style={{width: '100%'}}>
-          <Card.Text>
+          <Card.Text 
+            style={{
+              fontFamily: 'Noto Sans KR, sans-serif',
+              fontSize: '120%',
+              fontWeight: 'bold'
+            }}
+          >
             학교 : {props.schoolName}
           </Card.Text>
-          <Card.Text>
+          <Card.Text
+            style={{
+              fontFamily: 'Noto Sans KR, sans-serif',
+              fontSize: '120%',
+              fontWeight: 'bold'
+            }}
+          >
             전공 : {props.major}
           </Card.Text>
-          <Card.Text>
-            {props.degree}
+          <Card.Text
+            style={{
+              fontFamily: 'Noto Sans KR, sans-serif',
+              fontSize: '120%',
+              fontWeight: 'bold'
+            }}
+          >
+            학위 : {props.degree}
           </Card.Text>
         </div>
         {buttonTag}

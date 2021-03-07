@@ -2,6 +2,8 @@ import { React } from 'react';
 import { Card, Button } from 'react-bootstrap';
 import axios from 'axios';
 import url from '../../url/http';
+import { faPen, faTrashAlt} from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 function ProjectInner(props) {
 
@@ -10,19 +12,23 @@ function ProjectInner(props) {
   if (props.currentUser === props.targetId) {
     buttonTag = 
     <div className="d-flex justify-content-end align-items-center" style={{width: '100%'}}>
-      <Button variant="primary" onClick={()=>{
+      <Button variant="" onClick={()=>{
         props.changeTargetIndex(props.index);
         props.changeMode('EDIT');
-      }}>수정</Button>
-      <Button variant="danger" onClick={()=>{
+      }}>
+        <FontAwesomeIcon icon={faPen} size='lg' />
+      </Button>
+      <Button variant="" onClick={()=>{
         axios.delete(url + `project/post/${props.postId}`, props.header)
         .then(res=>{
           props.changeProjectData(res.data.res);
         }).catch(err=>{
           console.log(err);
         });
-      }}>삭제</Button>
-    </div>
+      }}>
+        <FontAwesomeIcon icon={faTrashAlt} size='lg' />
+      </Button>
+    </div> 
   } else {
     buttonTag = <></>
   }
@@ -50,14 +56,32 @@ function ProjectInner(props) {
     <Card key={props.index} className="mb-2" >
       <Card.Body className="d-flex">
         <div style={{width: '100%'}}>
-          <Card.Text>
-            {props.name}
+          <Card.Text
+           style={{
+            fontFamily: 'Noto Sans KR, sans-serif',
+            fontSize: '120%',
+            fontWeight: 'bold'
+          }}
+          >
+           프로젝트명 : {props.name}
           </Card.Text>
-          <Card.Text>
+          <Card.Text
+           style={{
+            fontFamily: 'Noto Sans KR, sans-serif',
+            fontSize: '120%',
+            fontWeight: 'bold'
+          }}
+          >
             {props.description}
           </Card.Text>
-          <Card.Text>
-            {startDate} ~ {endDate}
+          <Card.Text
+           style={{
+            fontFamily: 'Noto Sans KR, sans-serif',
+            fontSize: '120%',
+            fontWeight: 'bold'
+          }}
+          >
+            기간 : {startDate} ~ {endDate}
           </Card.Text>
         </div>
         {buttonTag}

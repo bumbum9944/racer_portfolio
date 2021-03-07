@@ -1,6 +1,6 @@
 import os
 import datetime
-from flask import Flask, jsonify, redirect, send_from_directory
+from flask import Flask, jsonify, redirect, send_from_directory, url_for
 from flask_restful import Resource, Api, reqparse
 import pymysql
 from werkzeug.utils import secure_filename
@@ -18,7 +18,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app = Flask(__name__)
 api = Api(app)
 
-
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 def allowed_file(filename):
@@ -27,6 +26,7 @@ def allowed_file(filename):
 
 #jwt 설정
 app.config['JWT_SECRET_KEY'] = Config.JWT_SECRET_KEY
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = Config.JWT_ACCESS_TOKEN_EXPIRES
 jwt = JWTManager(app)  
 
 #cors 설정
@@ -37,33 +37,70 @@ parser.add_argument("email")
 parser.add_argument("password")
 parser.add_argument("name")
 parser.add_argument("target")
+parser.add_argument("google_id")
 
+@app.route('/google/login', methods = ['POST'])
+def google_login():
 
-parser.add_argument("code")
+    args = parser.parse_args()
 
+    db = pymysql.connect(
+            user = 'root',
+            passwd = '',
+            host = '127.0.0.1',
+            port = 3306,
+            db = 'elice_pjt1',
+            charset = 'utf8'
+        )
 
-class Google(Resource):
-    def get(self):
-        return redirect(f'https://accounts.google.com/o/oauth2/auth?client_id={Config.GOOGLE_CLIENT_ID}&redirect_url={Config.GOOGLE_REDIRECT_URL}')
-        
+    cursor = db.cursor()
 
-    def post(self):
-        args = parser.parse_args()
-        print(args)
-        code = args['code']
-        url = 'https://www.googleapis.com/oauth2/token'
-        data = {
-            'code': code,
-            'client_id': Config.GOOGLE_CLIENT_ID,
-            'client_secret': Config.GOOGLE_CLIENT_SECRET,
-            'redirect_uri': Config.GOOGLE_REDIRECT_URL
-        }
+    google_id = args['google_id']
+    user_name = args['name']
 
-        return redirect(url, data)
+    sql = f'''
+        SELECT id
+        FROM user
+        WHERE email="{google_id}";
+    '''
 
+    cursor.execute(sql)
+    result = cursor.fetchone()
+    # 유저가 없으면 회원 가입 진행
+    if result == None:
+        sql = f'''
+         INSERT INTO user(name, email, password)
+         VALUES("{user_name}", "{google_id}", "{google_id}");
+        '''
+        cursor.execute(sql)
+        db.commit()
 
+        sql = f'''
+            SELECT id
+            FROM user
+            WHERE email="{google_id}";
+        '''
+        cursor.execute(sql)
+        result = cursor.fetchone()
 
-api.add_resource(Google, '/auth/google', '/auth/google/callback')
+        sql = f'''
+                INSERT INTO profile(user)
+                VALUES({result[0]});
+            '''
+        cursor.execute(sql)
+        db.commit()
+
+        print('!!!!!!!!!!!!!!!', result)
+    db.close()
+
+    access_token = create_access_token(identity=result[0])
+
+    result = {
+        'msg': '로그인 성공',
+        'token': access_token,
+        'currentUser': result[0]
+    }
+    return jsonify(status="success", result=result)
 
 class Account(Resource):
 
@@ -132,6 +169,7 @@ class Account(Resource):
 
         cursor = db.cursor()
 
+
         # 이름이 없으면 로그인
         if args['name'] == None:
 
@@ -140,25 +178,34 @@ class Account(Resource):
             cursor.execute(sql, (args['email'], ))
             res = cursor.fetchone()
             db.close()
-
             # 유저가 존재하지 않을 경우
             if res == None:
                 return jsonify(status="success", result="존재하지 않는 유저입니다.")
-            else:
-                # 유저가 있다면 비밀번호 체크
-                if bcrypt.checkpw(args['password'].encode('utf-8'), res[1].encode('utf-8')):
-                    
-                    access_token = create_access_token(identity=res[0])
 
-                    result = {
-                        'msg': '로그인 성공',
-                        'token': access_token,
-                        'currentUser': res[0]
-                    }
-                    return jsonify(status="success", result=result)
-                else:
-                    return jsonify(status="success", result="비밀번호를 확인해주세요")
+            # 비밀번호 체크
+            if bcrypt.checkpw(args['password'].encode('utf-8'), res[1].encode('utf-8')):
+                
+                access_token = create_access_token(identity=res[0])
+
+                result = {
+                    'msg': '로그인 성공',
+                    'token': access_token,
+                    'currentUser': res[0]
+                }
+                return jsonify(status="success", result=result)
+            else:
+                return jsonify(status="success", result="비밀번호를 확인해주세요.")
         else:
+
+            sql = "SELECT id, password FROM user WHERE email=%s;"
+
+            cursor.execute(sql, (args['email'], ))
+            res = cursor.fetchone()
+            if res:
+                db.close()
+                return jsonify(status="success", result="이미 존재하는 유저입니다.")
+
+
             sql = """
             INSERT INTO user (name, email, password) 
             VALUES (%s, %s, %s);

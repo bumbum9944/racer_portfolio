@@ -9,15 +9,31 @@ function NavBar(props) {
   if (props.accessToken !== null) {
     innerTag = 
     <>
-      <Nav.Link onClick={()=>{
-        history.push(`/mypage/${props.currentUser}`);
-      }}>마이페이지</Nav.Link>
-      <Nav.Link onClick={()=>{
-        sessionStorage.removeItem('token');
-        props.setAccessToken(null);
-        props.setCurrentUser(null);
-        history.push('/');
-      }}>로그아웃</Nav.Link>
+      <Nav.Link 
+        onClick={()=>{
+          history.push(`/mypage/${props.currentUser}`);
+        }}
+        style={{
+          fontFamily: 'Sunflower, sans-serif',
+          fontSize: '150%'
+        }}
+      >
+        Mypage
+      </Nav.Link>
+      <Nav.Link 
+        onClick={()=>{
+          sessionStorage.clear();
+          props.setAccessToken(null);
+          props.setCurrentUser(null);
+          history.push('/');
+        }}
+        style={{
+          fontFamily: 'Sunflower, sans-serif',
+          fontSize: '150%'
+        }}
+      >
+        Logout
+      </Nav.Link>
     </>
   } else {
     innerTag = <>

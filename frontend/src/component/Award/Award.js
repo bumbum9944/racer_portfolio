@@ -59,15 +59,17 @@ function Award(props) {
   let buttonTag
   if (props.currentUser === props.targetId) {
     buttonTag = 
-    <div className="d-flex justify-content-end">
-      <Button variant="primary" onClick={function(){
-        if(mode === 'READ') {
+    <div className="d-flex justify-content-center">
+      <Button variant="secondary" 
+        onClick={function(){
           setMode('CREATE');
-        } else {
-          setMode('READ');
-        }
-      }}>
-        추가
+        }}
+        style={{
+          fontSize: "110",
+          fontWeight: 'bold'
+        }}
+      >
+        +
       </Button>
     </div>
   } else {
@@ -75,7 +77,7 @@ function Award(props) {
   }
 
   if(mode === 'CREATE') {
-    createForm = <AwardForm formMode="제출" name="" description="" 
+    createForm = <AwardForm formMode="Submit" name="" description="" 
     header={header}
     changeAwardData={function(data) {
       setAwardData(data)
@@ -83,7 +85,7 @@ function Award(props) {
       setMode(data);
     }} />
   } else if(mode === 'EDIT') {
-    createForm = <AwardForm formMode="저장"
+    createForm = <AwardForm formMode="Save"
     postId = {awardData[targetIndex][0]} 
     name={awardData[targetIndex][1]} 
     description={awardData[targetIndex][2]}
@@ -96,7 +98,7 @@ function Award(props) {
   }
 
   return (
-    <Card style={{ width: '100%' }}>
+    <Card className="my-4" style={{ width: '100%' }}>
         <Card.Body>
           <Card.Title className="portfolio-title" style={{
           fontFamily: 'Noto Sans KR, sans-serif',
