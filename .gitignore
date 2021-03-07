@@ -2,6 +2,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,flask,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,python,flask,react
 
+static/
+
+env/
+
 config.py
 
 ### Flask ###

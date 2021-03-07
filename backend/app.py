@@ -1,17 +1,31 @@
-from flask import Flask, jsonify
+import os
+import datetime
+from flask import Flask, jsonify, send_from_directory
 from flask_restful import Resource, Api, reqparse
 import pymysql
+from werkzeug.utils import secure_filename
+from werkzeug.datastructures import FileStorage
 from flask_cors import CORS
 import bcrypt
 from flask_jwt_extended import (JWTManager, jwt_required, create_access_token, get_jwt_identity)
 from config import Config
 
+UPLOAD_FOLDER = './static'
+ALLOWED_EXTENSIONS = set(['pdf', 'png', 'jpg', 'jpeg', 'gif'])
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app = Flask(__name__)
 api = Api(app)
 
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
+
 #jwt 설정
 app.config['JWT_SECRET_KEY'] = Config.JWT_SECRET_KEY
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = Config.JWT_ACCESS_TOKEN_EXPIRES
 jwt = JWTManager(app)  
 
 #cors 설정
@@ -21,9 +35,124 @@ parser = reqparse.RequestParser()
 parser.add_argument("email")
 parser.add_argument("password")
 parser.add_argument("name")
+parser.add_argument("target")
+parser.add_argument("google_id")
 
+@app.route('/google/login', methods = ['POST'])
+def google_login():
+
+    args = parser.parse_args()
+
+    db = pymysql.connect(
+            user = 'root',
+            passwd = '',
+            host = '127.0.0.1',
+            port = 3306,
+            db = 'elice_pjt1',
+            charset = 'utf8'
+        )
+
+    cursor = db.cursor()
+
+    google_id = args['google_id']
+    user_name = args['name']
+
+    sql = f'''
+        SELECT id
+        FROM user
+        WHERE email="{google_id}";
+    '''
+
+    cursor.execute(sql)
+    result = cursor.fetchone()
+    # 유저가 없으면 회원 가입 진행
+    if result is None:
+        sql = f'''
+         INSERT INTO user(name, email, password)
+         VALUES("{user_name}", "{google_id}", "{google_id}");
+        '''
+        cursor.execute(sql)
+        db.commit()
+
+        sql = f'''
+            SELECT id
+            FROM user
+            WHERE email="{google_id}";
+        '''
+        cursor.execute(sql)
+        result = cursor.fetchone()
+
+        sql = f'''
+                INSERT INTO profile(user)
+                VALUES({result[0]});
+            '''
+        cursor.execute(sql)
+        db.commit()
+
+    db.close()
+
+    access_token = create_access_token(identity=result[0])
+
+    result = {
+        'msg': '로그인 성공',
+        'token': access_token,
+        'currentUser': result[0]
+    }
+    return jsonify(status="success", result=result)
 
 class Account(Resource):
+
+    def get(self, user_id=None):
+        args = parser.parse_args()
+
+        search_target = args["target"]
+
+        db = pymysql.connect(
+            user = 'root',
+            passwd = '',
+            host = '127.0.0.1',
+            port = 3306,
+            db = 'elice_pjt1',
+            charset = 'utf8'
+        )
+
+        cursor = db.cursor()
+
+        if search_target is None or search_target == 'all':
+
+            sql = f'''
+                SELECT u.id, u.name, u.email, p.id, 
+                p.introduction, p.image 
+                FROM user AS u
+                INNER JOIN profile AS p
+                ON u.id=p.user;
+            '''
+            cursor.execute(sql)
+            result = cursor.fetchall()
+        else:
+            if len(search_target) > 1:
+                sql = f'''
+                    SELECT u.id, u.name, u.email, p.id, 
+                    p.introduction, p.image 
+                    FROM user AS u
+                    INNER JOIN profile AS p
+                    ON u.id=p.user
+                    WHERE
+                    u.name LIKE '%{search_target}%';
+                '''
+
+                cursor.execute(sql)
+                result = cursor.fetchall()
+                if len(result) == 0:
+                    result = 'nothing'
+            else:
+                result = 'lack'
+
+        db.close()
+
+        return jsonify(status = "success", result = result) 
+
+
     def post(self):
         args = parser.parse_args()
 
@@ -38,32 +167,43 @@ class Account(Resource):
 
         cursor = db.cursor()
 
+
         # 이름이 없으면 로그인
-        if args['name'] == None:
+        if args['name'] is None:
 
             sql = "SELECT id, password FROM user WHERE email=%s;"
 
             cursor.execute(sql, (args['email'], ))
             res = cursor.fetchone()
             db.close()
-
             # 유저가 존재하지 않을 경우
-            if res == None:
+            if res is None:
                 return jsonify(status="success", result="존재하지 않는 유저입니다.")
-            else:
-                # 유저가 있다면 비밀번호 체크
-                if bcrypt.checkpw(args['password'].encode('utf-8'), res[1].encode('utf-8')):
-                    
-                    access_token = create_access_token(identity=res[0])
 
-                    result = {
-                        'msg': '로그인 성공',
-                        'token': access_token
-                    }
-                    return jsonify(status="success", result=result)
-                else:
-                    return jsonify(status="success", result="비밀번호를 확인해주세요")
+            # 비밀번호 체크
+            if bcrypt.checkpw(args['password'].encode('utf-8'), res[1].encode('utf-8')):
+                
+                access_token = create_access_token(identity=res[0])
+
+                result = {
+                    'msg': '로그인 성공',
+                    'token': access_token,
+                    'currentUser': res[0]
+                }
+                return jsonify(status="success", result=result)
+            else:
+                return jsonify(status="success", result="비밀번호를 확인해주세요.")
         else:
+
+            sql = "SELECT id, password FROM user WHERE email=%s;"
+
+            cursor.execute(sql, (args['email'], ))
+            res = cursor.fetchone()
+            if res:
+                db.close()
+                return jsonify(status="success", result="이미 존재하는 유저입니다.")
+
+
             sql = """
             INSERT INTO user (name, email, password) 
             VALUES (%s, %s, %s);
@@ -75,14 +215,22 @@ class Account(Resource):
             cursor.execute(sql, (args['name'], args['email'], encrypted_password, ))
             db.commit()
 
-            sql = "SELECT email FROM user WHERE email=%s;"
+            sql = "SELECT id FROM user WHERE email=%s;"
             cursor.execute(sql, (args['email'], ))
-            result = cursor.fetchone()
+            user_id = cursor.fetchone()[0]
+
+            sql = f'''
+                INSERT INTO profile(user)
+                VALUES({user_id});
+            '''
+            cursor.execute(sql)
+            db.commit()
+
             db.close()
 
-            return jsonify(status = "success", result = result) 
+            return jsonify(status = "success", result = "회원가입 성공") 
 
-api.add_resource(Account, '/account')
+api.add_resource(Account, '/account', '/account/<user_id>')
 
 parser.add_argument("degree")
 parser.add_argument("schoolName")
@@ -95,11 +243,14 @@ parser.add_argument("endDate")
 parser.add_argument("acquisitionDate")
 parser.add_argument("issuer")
 
+parser.add_argument("introduction")
+parser.add_argument("past_image")
+parser.add_argument("profile_image_change_mode")
+parser.add_argument("profile_image", type=FileStorage, location='files')
 
 class Post(Resource):
 
-    @jwt_required()
-    def get(self, category, user_id=None):
+    def get(self, category, user_id):
         args = parser.parse_args()
 
         db = pymysql.connect(
@@ -113,16 +264,21 @@ class Post(Resource):
 
         cursor = db.cursor()
 
-        # user_id가 없으면 나의 정보 요청으로 인식
-        if user_id == None:
-            current_user_id = get_jwt_identity()
-            sql=f'SELECT * FROM {category} WHERE user="{current_user_id}";'
-            cursor.execute(sql)
+        if category == 'profile':
+            sql = f'''
+                SELECT u.name, u.email, p.id, 
+                p.introduction, p.image 
+                FROM user AS u
+                INNER JOIN profile AS p
+                ON u.id=p.user
+                WHERE u.id={user_id};
+            '''
+        else:
+            sql=f'SELECT * FROM {category} WHERE user="{user_id}";'
+        cursor.execute(sql)
+        
+        result = cursor.fetchall()
             
-            result = cursor.fetchall()
-            
-        else: # 다른 유저 정보 요청
-            pass
         
         db.close()
 
@@ -133,7 +289,6 @@ class Post(Resource):
     def post(self, category):
         args = parser.parse_args()
         current_user_id = get_jwt_identity()
-
         db = pymysql.connect(
             user = 'root',
             passwd = '',
@@ -261,11 +416,54 @@ class Post(Resource):
                 acquisitionDate="{acquisitionDate}"
                 WHERE id={post_id}
             '''
+        elif category == 'profile':
+            # 이전 프로필 이미지 파일 삭제
+            past_image = args['past_image']
+            profile = args['profile_image']
+            profile_image_change_mode = args['profile_image_change_mode']
+            
+
+            if profile_image_change_mode == 'keep':
+                sql = f'''
+                    UPDATE {category}
+                    SET
+                    introduction='{args['introduction']}'
+                    WHERE id={post_id};
+                '''
+            else:
+                if past_image != 'null':
+                    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], past_image))
+                
+                if profile_image_change_mode == 'delete':
+                    file_name='null'
+                else:
+                    if profile and allowed_file(profile.filename):
+                        nowDate = datetime.datetime.now()
+                        file_name = secure_filename(nowDate.strftime('%Y-%m-%d %H%M%S') + profile.filename)
+                        profile.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+
+                sql = f'''
+                    UPDATE {category}
+                    SET
+                    introduction='{args['introduction']}',
+                    image='{file_name}'
+                    WHERE id={post_id};
+                '''
 
         cursor.execute(sql)
         db.commit()
-
-        cursor.execute(f'SELECT * FROM {category} WHERE user="{current_user_id}";')
+        if category == "profile":
+            sql = f'''
+                SELECT u.name, u.email, p.id, 
+                p.introduction, p.image 
+                FROM user AS u
+                INNER JOIN profile AS p
+                ON u.id=p.user
+                WHERE u.id={current_user_id};
+            '''
+        else:
+            sql = f'SELECT * FROM {category} WHERE user="{current_user_id}";'
+        cursor.execute(sql)
         res = cursor.fetchall()
         db.close()
 
@@ -273,8 +471,12 @@ class Post(Resource):
         
         
 # api 라우팅 등록
-api.add_resource(Post, '/post/<category>', '/post/<category>/<post_id>', '/user/<user_id>/post/<category>')
+api.add_resource(Post, '/<category>/<user_id>/', '/<category>/post', '/<category>/post/<post_id>')
+
+@app.route('/image/<file_name>')
+def send_image(file_name):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], file_name)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, threaded=False)
