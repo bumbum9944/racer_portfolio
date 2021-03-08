@@ -53,7 +53,7 @@ function ProjectForm(props) {
                 fontWeight: 'bold'
               }}
             >
-              수상내역
+              프로젝트명
             </Form.Label>
             <Form.Control type="text" name="name" 
               defaultValue={props.name} 
