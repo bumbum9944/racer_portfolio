@@ -27,7 +27,9 @@ function NetworkInner(props) {
   
   let imgTag = 
   <Card.Body className="d-flex justify-content-center">
-    <img src={nowImage} style={{borderRadius: '70%', width: '60%'}} alt="profile-img" />
+    <div className="d-flex justify-content-center align-items-center" style={{width: '10rem', height:'10rem'}}>
+      <img src={nowImage} style={{borderRadius: '70%', width: '100%', height:'100%'}} alt="profile-img" />
+    </div>
   </Card.Body>
   return(
     <Col col="4" className="d-flex justify-content-center my-2">
